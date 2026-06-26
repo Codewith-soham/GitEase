@@ -54,6 +54,10 @@ const findSessionByToken = async(hashedToken) => {
     return findSessionbyToken
 }
 
+const deleteALlSessions = async(userId) => {
+   return await Session.deleteMany({userId})
+}
+
 export {
     findUserByGithubId,
     createUser,
@@ -62,6 +66,7 @@ export {
     countUserSession,
     findOldestSession,
     deleteSession,
-    findSessionByToken
+    findSessionByToken,
+    deleteALlSessions
 }
 
