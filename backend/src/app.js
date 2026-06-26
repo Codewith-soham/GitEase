@@ -22,7 +22,7 @@ app.use(express.static("public")); //used to serve static files like images and 
 app.use(cookieParser()); //parses cookies sent by the client required to read jwt refresh tokens
 app.use(morgan("dev"));
 
-app.use('/api/auth', authRoutes)
+app.use('/api/auth/v1', authRoutes)
 app.use(errorMiddleware)
 
 export { app };
