@@ -8,8 +8,10 @@ import {
     countUserSession,
     findOldestSession,
     deleteSession,
-    findSessionByToken } from './auth.repository.js'
+    findSessionByToken, 
+    deleteALlSessions} from './auth.repository.js'
 import { Session } from '../../models/session.model.js'
+import { ApiError } from '../../utils/ApiError.js'
 
 
 const handleGithubCallBack = async (code, deviceInfo, ip, userAgent) => {
@@ -58,4 +60,26 @@ const handleGithubCallBack = async (code, deviceInfo, ip, userAgent) => {
 }
 }
 
-export { handleGithubCallBack }
+const logOutAllSessions = async(userId) => {
+    return await deleteALlSessions(userId)
+}
+
+const refreshAccessToken = async (token) => {
+    const hashedToken = Session.hashToken(token)
+
+    const session = await findSessionByToken(hashedToken)
+
+    if (!session) {
+        throw new ApiError(401, "Session not found")
+    }
+
+    try {
+        verifyRefreshToken(token)
+    } catch (err) {
+        throw new ApiError(401, "Refresh token expired")
+    }
+
+    return generateAccessToken(session.userId)
+}
+
+export { handleGithubCallBack , logOutAllSessions, refreshAccessToken }
