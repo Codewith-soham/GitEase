@@ -1,9 +1,7 @@
-import { handleGithubCallBack as githubCallbackService } from './auth.service.js'
+import { handleGithubCallBack as githubCallbackService, logOutAllSessions, refreshAccessToken } from './auth.service.js'
 import { asyncHandler } from '../../utils/asyncHandler.js'
 import { ApiResponse } from '../../utils/ApiResponse.js'
-import { findSessionByToken } from './auth.repository.js'
-import { deleteSession } from './auth.repository.js'
-import cookies from 'cookie-parser'  // unused
+import { deleteALlSessions, findSessionByToken } from './auth.repository.js'
 import { Session } from '../../models/session.model.js'
 
 const redirectToGithub = asyncHandler(async (req, res) => {
@@ -52,7 +50,7 @@ const logOut = asyncHandler(async(req,res) => {
 
     const hashedTokens = Session.hashToken(tokens)
 
-    const session = await findSessionByToken(token)
+    const session = await findSessionByToken(tokens)
 
     await deleteSession(session._id)
 
@@ -63,6 +61,29 @@ const logOut = asyncHandler(async(req,res) => {
 
 })
 
+const logOutAll = asyncHandler(async(req,res) => {
+    await logOutAllSessions(req.user_.id)
+
+    res.clearCookie('accessToken')
+    res.clearCookie('refreshToke')
+
+    return res.status(200).json(new ApiResponse(200, null, "ALl user sessions deleted"))
+})
+
+const newAccessToken = asyncHandler(async(req,res) => {
+    const accessToken = await refreshAccessToken(req.cookies.refreshToken)
+
+    res.cookie('accessToken', accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 15 * 60 * 1000,
+    })
+
+    return res.status(200).json(new ApiResponse(200, accessToken, "New access Token generated"))
+})
 
 
-export { redirectToGithub, handleGithubCallBack, getMe, logOut }
+
+
+export { redirectToGithub, handleGithubCallBack, getMe, logOut , logOutAll , newAccessToken}
