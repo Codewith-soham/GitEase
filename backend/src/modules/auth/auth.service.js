@@ -1,5 +1,5 @@
 import { exchangeCodeForToken, getGithubProfile } from '../../services/github.services.js'
-import { generateAccessToken, generateRefreshToken } from '../../utils/tokenGenration.js'
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../utils/tokenGenration.js'
 import {
     findUserByGithubId,
     createUser,
@@ -8,8 +8,10 @@ import {
     countUserSession,
     findOldestSession,
     deleteSession,
-    findSessionByToken, 
-    deleteALlSessions} from './auth.repository.js'
+    findSessionByToken,
+    deleteALlSessions,
+    findSessionbyUserId as findSessionsByUserIdRepository,
+} from './auth.repository.js'
 import { Session } from '../../models/session.model.js'
 import { ApiError } from '../../utils/ApiError.js'
 
@@ -65,6 +67,10 @@ const logOutAllSessions = async(userId) => {
 }
 
 const refreshAccessToken = async (token) => {
+    if (!token) {
+        throw new ApiError(401, 'Refresh token required')
+    }
+
     const hashedToken = Session.hashToken(token)
 
     const session = await findSessionByToken(hashedToken)
@@ -82,4 +88,10 @@ const refreshAccessToken = async (token) => {
     return generateAccessToken(session.userId)
 }
 
-export { handleGithubCallBack , logOutAllSessions, refreshAccessToken }
+const findSessionbyUserId = async(userId) => {
+    const sessions = await findSessionsByUserIdRepository(userId)
+
+    return sessions
+}
+
+export { handleGithubCallBack , logOutAllSessions, refreshAccessToken , findSessionbyUserId}
