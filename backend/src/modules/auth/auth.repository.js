@@ -47,7 +47,7 @@ const deleteSession = async(sessionId) => {
 }
 
 const findSessionByToken = async(hashedToken) => {
-    const findSessionbyToken = await Session.findOne({
+    const findSessionbyToken = await Session.findOne({   
         refreshToken : hashedToken
     })
 
@@ -55,7 +55,11 @@ const findSessionByToken = async(hashedToken) => {
 }
 
 const deleteALlSessions = async(userId) => {
-   return await Session.deleteMany({userId})
+   return await Session.deleteMany({userId})  
+}
+
+const findSessionbyUserId = async(userId) => {    
+    return await Session.find({userId})
 }
 
 export {
@@ -67,6 +71,7 @@ export {
     findOldestSession,
     deleteSession,
     findSessionByToken,
-    deleteALlSessions
+    deleteALlSessions,
+    findSessionbyUserId
 }
 
