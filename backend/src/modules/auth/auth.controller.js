@@ -1,7 +1,8 @@
-import { handleGithubCallBack as githubCallbackService, logOutAllSessions, refreshAccessToken } from './auth.service.js'
+import { handleGithubCallBack as githubCallbackService, logOutAllSessions, refreshAccessToken, findSessionbyUserId } from './auth.service.js'
 import { asyncHandler } from '../../utils/asyncHandler.js'
 import { ApiResponse } from '../../utils/ApiResponse.js'
-import { deleteALlSessions, findSessionByToken } from './auth.repository.js'
+import { deleteSession, findSessionByToken } from './auth.repository.js'
+import { ApiError } from '../../utils/ApiError.js'
 import { Session } from '../../models/session.model.js'
 
 const redirectToGithub = asyncHandler(async (req, res) => {
@@ -46,28 +47,36 @@ const getMe = asyncHandler(async(req , res) => {
 })
 
 const logOut = asyncHandler(async(req,res) => {
-    const  tokens  = req.cookies.refreshToken
+    const token = req.cookies?.refreshToken
 
-    const hashedTokens = Session.hashToken(tokens)
+    if (!token) {
+        throw new ApiError(401, 'Refresh token required')
+    }
 
-    const session = await findSessionByToken(tokens)
+    const hashedToken = Session.hashToken(token)
+
+    const session = await findSessionByToken(hashedToken)
+
+    if (!session) {
+        throw new ApiError(401, 'Session not found')
+    }
 
     await deleteSession(session._id)
 
     res.clearCookie('accessToken')
     res.clearCookie('refreshToken')
 
-    return res.status(200).json(new ApiResponse(200, null, "User logged out succcesfully"))
+    return res.status(200).json(new ApiResponse(200, null, "User logged out successfully"))
 
 })
 
 const logOutAll = asyncHandler(async(req,res) => {
-    await logOutAllSessions(req.user_.id)
+    await logOutAllSessions(req.user._id)
 
     res.clearCookie('accessToken')
-    res.clearCookie('refreshToke')
+    res.clearCookie('refreshToken')
 
-    return res.status(200).json(new ApiResponse(200, null, "ALl user sessions deleted"))
+    return res.status(200).json(new ApiResponse(200, null, "All user sessions deleted"))
 })
 
 const newAccessToken = asyncHandler(async(req,res) => {
@@ -83,7 +92,12 @@ const newAccessToken = asyncHandler(async(req,res) => {
     return res.status(200).json(new ApiResponse(200, accessToken, "New access Token generated"))
 })
 
+const getAllSessions = asyncHandler(async(req,res) => {
+    const allSessions = await findSessionbyUserId(req.user._id)
+
+    return res.status(200).json(new ApiResponse(200, allSessions , "Sessions fetched successfully"))
+})
 
 
 
-export { redirectToGithub, handleGithubCallBack, getMe, logOut , logOutAll , newAccessToken}
+export { redirectToGithub, handleGithubCallBack, getMe, logOut , logOutAll , newAccessToken, getAllSessions}
