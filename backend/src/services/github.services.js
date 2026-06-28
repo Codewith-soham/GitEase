@@ -35,4 +35,16 @@ const getGithubProfile = async (accessToken) => {
     return response.data
 }
 
-export { exchangeCodeForToken, getGithubProfile }
+const getGithubRepos = async(accessToken) => {
+    const response = await axios.get(
+        "https://api.github.com/user/repos",
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        }
+    )
+    return response.data
+}
+
+export { exchangeCodeForToken, getGithubProfile , getGithubRepos}

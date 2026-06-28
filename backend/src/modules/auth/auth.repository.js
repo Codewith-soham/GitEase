@@ -62,6 +62,10 @@ const findSessionbyUserId = async(userId) => {
     return await Session.find({userId})
 }
 
+const findUserbyId = async(userId) => {
+    return await User.findById(userId)
+}
+
 export {
     findUserByGithubId,
     createUser,
@@ -72,6 +76,6 @@ export {
     deleteSession,
     findSessionByToken,
     deleteALlSessions,
-    findSessionbyUserId
+    findSessionbyUserId,
+    findUserbyId
 }
-

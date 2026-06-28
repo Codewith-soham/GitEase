@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import authRoutes from './modules/auth/auth.routes.js'
 import { errorMiddleware } from "./middleware/error.middleware.js";
+import repositoryRouter from './modules/repository/repository.route.js'
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use(cookieParser()); //parses cookies sent by the client required to read jw
 app.use(morgan("dev"));
 
 app.use('/api/auth/v1', authRoutes)
+app.use('/api/repository/v1', repositoryRouter)
 app.use(errorMiddleware)
 
 export { app };
