@@ -66,6 +66,16 @@ const findUserbyId = async(userId) => {
     return await User.findById(userId)
 }
 
+const updateUserGithubtoken = async(userId, githubtoken) => {
+    return await User.findByIdAndUpdate(
+        userId,
+        {
+            githubAccessToken: githubtoken
+        },
+        {new: true}
+    )
+}
+
 export {
     findUserByGithubId,
     createUser,
@@ -77,5 +87,6 @@ export {
     findSessionByToken,
     deleteALlSessions,
     findSessionbyUserId,
-    findUserbyId
+    findUserbyId,
+    updateUserGithubtoken
 }

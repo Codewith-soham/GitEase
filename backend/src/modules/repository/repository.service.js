@@ -1,4 +1,4 @@
-import { getGithubRepos } from "../../services/github.services.js";
+import { createGithubRepo, getGithubRepos } from "../../services/github.services.js";
 import { findUserbyId } from "../auth/auth.repository.js";
 
 const getRepos = async(userId) => {
@@ -17,7 +17,20 @@ const getRepos = async(userId) => {
         updatedAt: repo.updated_at
     }))
 }
+const createRepository = async(user, body) => {
+    const newRepo = await createGithubRepo(user.githubAccessToken, body)
+
+    return {
+        id: newRepo.id,
+        name: newRepo.name,
+        private: newRepo.private,
+        description: newRepo.description,
+        url: newRepo.html_url,
+        updatedAt: newRepo.updated_at
+    }
+}
 
 export {
-    getRepos
+    getRepos,
+    createRepository
 }

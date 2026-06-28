@@ -16,7 +16,7 @@ const verifyJwt = asyncHandler(async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_TOKEN)
 
-    const user = await User.findById(decoded.userId).select("-githubAccessToken")
+    const user = await User.findById(decoded.userId)
 
     if(!user) throw new ApiError(401, "User not found")
 

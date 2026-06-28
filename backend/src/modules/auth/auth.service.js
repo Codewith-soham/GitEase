@@ -11,6 +11,7 @@ import {
     findSessionByToken,
     deleteALlSessions,
     findSessionbyUserId as findSessionsByUserIdRepository,
+    updateUserGithubtoken,
 } from './auth.repository.js'
 import { Session } from '../../models/session.model.js'
 import { ApiError } from '../../utils/ApiError.js'
@@ -31,6 +32,8 @@ const handleGithubCallBack = async (code, deviceInfo, ip, userAgent) => {
             avatar: githubProfile.avatar_url,
             githubAccessToken: githubToken 
         })
+    } else {
+        user = await updateUserGithubtoken(user._id, githubToken)
     }
 
     const sessionCount = await countUserSession(user._id)

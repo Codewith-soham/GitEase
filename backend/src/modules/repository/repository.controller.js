@@ -1,4 +1,4 @@
-import { getRepos  } from "./repository.service.js";
+import { createRepository, getRepos  } from "./repository.service.js";
 import { asyncHandler } from "../../utils/asyncHandler.js"
 import { ApiResponse } from "../../utils/ApiResponse.js"
 import { ApiError } from "../../utils/ApiError.js"
@@ -8,6 +8,15 @@ const getGitHubRepo = asyncHandler(async(req,res) => {
     return res.status(200).json(new ApiResponse(200, repository, "Repository fetched successfully"))
 })
 
+const createRepo = asyncHandler(async(req,res) => {
+    console.log("req.user:", req.user)
+    
+    const newRepo = await createRepository(req.user, req.body)
+
+    return res.status(200).json(new ApiResponse(200, newRepo, "New Repository created successfully"))
+})
+
 export {
-    getGitHubRepo
+    getGitHubRepo,
+    createRepo
 }

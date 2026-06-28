@@ -47,4 +47,24 @@ const getGithubRepos = async(accessToken) => {
     return response.data
 }
 
-export { exchangeCodeForToken, getGithubProfile , getGithubRepos}
+//will create github repo giving name,private(type of repo),description and autoInit data of repo
+const createGithubRepo = async(accessToken, payload) => {
+    const {name , private: isPrivate, description, auto_init} = payload
+    const response = await axios.post(
+        "https://api.github.com/user/repos",
+        {
+            name,
+            private: isPrivate,
+            description,
+            auto_init
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            }
+        }
+    )
+    return response.data
+}
+
+export { exchangeCodeForToken, getGithubProfile , getGithubRepos, createGithubRepo}

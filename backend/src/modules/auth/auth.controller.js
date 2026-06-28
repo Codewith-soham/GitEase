@@ -9,7 +9,7 @@ const redirectToGithub = asyncHandler(async (req, res) => {
     const clientId = process.env.CLIENT_ID
 
     res.redirect(
-        `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=user:email`,
+        `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=user:email,repo`,
     )
 })
 
