@@ -67,4 +67,33 @@ const createGithubRepo = async(accessToken, payload) => {
     return response.data
 }
 
-export { exchangeCodeForToken, getGithubProfile , getGithubRepos, createGithubRepo}
+const getGithubBranchSha = async(accessToken , owner, repoName , baseBranch) => {
+    console.log(owner, repoName, baseBranch)
+    const response = await axios.get(
+        `https://api.github.com/repos/${owner}/${repoName}/git/refs/heads/${baseBranch}`,
+        {
+            headers:{
+                Authorization: `Bearer ${accessToken}`,
+            }
+        }
+    )
+    return response.data.object.sha //getting sha only as reponse   sha -> unique commit id 
+}
+
+const createGithubBranch = async(accessToken, owner, repoName, branchName, sha) => {
+    const response = await axios.post(
+        `https://api.github.com/repos/${owner}/${repoName}/git/refs`,
+        {
+            ref: `refs/heads/${branchName}`,
+            sha
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        }
+    )
+    return response.data 
+}
+
+export { exchangeCodeForToken, getGithubProfile , getGithubRepos, createGithubRepo, getGithubBranchSha, createGithubBranch}

@@ -6,7 +6,7 @@
 
 **Product Name:** GitEase
 
-**Owner:** 
+**Owner:** Soham Ghadge
 
 **Last Updated:** TBD
 

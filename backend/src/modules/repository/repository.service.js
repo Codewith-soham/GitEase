@@ -1,4 +1,4 @@
-import { createGithubRepo, getGithubRepos } from "../../services/github.services.js";
+import { createGithubBranch, createGithubRepo, getGithubBranchSha, getGithubRepos } from "../../services/github.services.js";
 import { findUserbyId } from "../auth/auth.repository.js";
 
 const getRepos = async(userId) => {
@@ -30,7 +30,21 @@ const createRepository = async(user, body) => {
     }
 }
 
+const createBranch = async(user, repoName, body) => {
+    const { branchName, baseBranch} = body
+
+    const sha = await getGithubBranchSha(user.githubAccessToken, user.username, repoName, baseBranch)
+
+    const newBranch = await createGithubBranch(user.githubAccessToken, user.username, repoName, branchName, sha)
+
+    return {
+        name: newBranch.ref.replace("refs/heads/", ""),
+        sha: newBranch.object.sha
+    }
+}
+
 export {
     getRepos,
-    createRepository
+    createRepository,
+    createBranch
 }
