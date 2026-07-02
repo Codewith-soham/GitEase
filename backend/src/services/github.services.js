@@ -96,4 +96,16 @@ const createGithubBranch = async(accessToken, owner, repoName, branchName, sha) 
     return response.data 
 }
 
-export { exchangeCodeForToken, getGithubProfile , getGithubRepos, createGithubRepo, getGithubBranchSha, createGithubBranch}
+const listGithubBranch = async(accessToken, owner, repoName) => {
+    const response = await axios.get(
+        `https://api.github.com/repos/${owner}/${repoName}/branches`,
+        {
+            headers:{
+                Authorization: `Bearer ${accessToken}`
+            }
+        }
+    )
+    return response.data
+}
+
+export { exchangeCodeForToken, getGithubProfile , getGithubRepos, createGithubRepo, getGithubBranchSha, createGithubBranch, listGithubBranch}

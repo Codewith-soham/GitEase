@@ -1,4 +1,4 @@
-import { createRepository, getRepos , createBranch } from "./repository.service.js";
+import { createRepository, getRepos , createBranch, listBranch } from "./repository.service.js";
 import { asyncHandler } from "../../utils/asyncHandler.js"
 import { ApiResponse } from "../../utils/ApiResponse.js"
 import { ApiError } from "../../utils/ApiError.js"
@@ -22,8 +22,15 @@ const createNewBranch = asyncHandler(async(req,res) => {
     return res.status(200).json(new ApiResponse(200, newBranch, "New branch created"))
 })
 
+const listBranches = asyncHandler(async(req,res) => {
+    const listedBranch = await listBranch(req.user, req.params.repoName)
+
+    return res.status(200).json(new ApiResponse(200, listedBranch, "listed branches fetched"))
+})
+
 export {
     getGitHubRepo,
     createRepo,
-    createNewBranch
+    createNewBranch,
+    listBranches
 }
