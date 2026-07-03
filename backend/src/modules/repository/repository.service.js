@@ -1,4 +1,4 @@
-import { createGithubBranch, createGithubRepo, getGithubBranchSha, getGithubRepos, listGithubBranch } from "../../services/github.services.js";
+import { createGithubBranch, createGithubRepo, deleteGithubrepo, getGithubBranchSha, getGithubRepos, listGithubBranch, deleteGithubBranch } from "../../services/github.services.js";
 import { findUserbyId } from "../auth/auth.repository.js";
 
 const getRepos = async(userId) => {
@@ -53,9 +53,24 @@ const listBranch = async(user, repoName) => {
     }))
 }
 
+const deleteRepo = async(user, repoName) => {
+
+    const deletedRepo = await deleteGithubrepo(user.githubAccessToken, user.username, repoName)
+
+    return deleteRepo
+}
+
+const deleteBranch = async(user, repoName, branchName) => {
+    await deleteGithubBranch(user.githubAccessToken, user.username, repoName, branchName)
+    return { deletedBranch: branchName }
+}
+
 export {
     getRepos,
     createRepository,
     createBranch,
-    listBranch
+    listBranch,
+    deleteRepo,
+    deleteBranch
+    
 }

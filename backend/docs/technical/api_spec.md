@@ -1,6 +1,6 @@
 # GitEase API Specification
 
-**Document Version:** v0.1
+**Document Version:** v0.2
 
 **Status:** Draft
 
@@ -388,7 +388,153 @@ USER_001
 
 ---
 
-# 11. HTTP Status Codes
+# 11. Repository Endpoints
+
+Repository endpoints proxy GitHub's REST API on behalf of the authenticated user, using the GitHub access token stored on their account.
+
+---
+
+## 11.1 List Repositories
+
+GET /api/repository/v1/repo
+
+Purpose
+
+Fetch all GitHub repositories accessible to the authenticated user's linked GitHub account.
+
+Authentication Required
+
+Yes
+
+Request
+
+None
+
+Response
+
+Array of repositories, each containing:
+
+id, name, fullname, description, visibility, defaultBranch, url, language, updatedAt
+
+Possible Errors
+
+AUTH_007
+
+SYSTEM_001
+
+---
+
+## 11.2 Create Repository
+
+POST /api/repository/v1/repo
+
+Purpose
+
+Create a new repository on the authenticated user's GitHub account.
+
+Authentication Required
+
+Yes
+
+Request
+
+name
+
+private
+
+description
+
+auto_init
+
+Response
+
+id, name, private, description, url, updatedAt
+
+Possible Errors
+
+AUTH_007
+
+VALIDATION_001
+
+SYSTEM_001
+
+---
+
+## 11.3 Create Branch
+
+POST /api/repository/v1/repo/:repoName/branches
+
+Purpose
+
+Create a new branch in the specified repository, starting from the tip of an existing base branch.
+
+Authentication Required
+
+Yes
+
+Path Parameters
+
+repoName
+
+Request
+
+branchName
+
+baseBranch
+
+Response
+
+name, sha
+
+Possible Errors
+
+AUTH_007
+
+VALIDATION_001
+
+404 if the base branch does not exist
+
+SYSTEM_001
+
+---
+
+## 11.4 List Branches
+
+GET /api/repository/v1/repo/:repoName/branches
+
+Purpose
+
+Return all branches for the specified repository.
+
+Authentication Required
+
+Yes
+
+Path Parameters
+
+repoName
+
+Request
+
+None
+
+Response
+
+Array of branches, each containing:
+
+name, sha
+
+Possible Errors
+
+AUTH_007
+
+404 if the repository does not exist
+
+SYSTEM_001
+
+---
+
+# 12. HTTP Status Codes
 
 200 OK
 
@@ -436,7 +582,7 @@ Unexpected server error.
 
 ---
 
-# 12. API Naming Standards
+# 13. API Naming Standards
 
 Resources
 
@@ -484,7 +630,7 @@ Never
 
 ---
 
-# 13. Security Considerations
+# 14. Security Considerations
 
 Access Tokens should never be stored in Local Storage.
 
@@ -504,11 +650,7 @@ Device Fingerprinting
 
 ---
 
-# 14. Future Endpoints
-
-Repositories
-
-Branches
+# 15. Future Endpoints
 
 Commits
 
@@ -528,8 +670,9 @@ These endpoints will be documented as corresponding features are implemented.
 
 ---
 
-# 15. Revision History
+# 16. Revision History
 
 | Version | Description |
 |----------|-------------|
 | v0.1 | Initial Authentication API Specification |
+| v0.2 | Added Repository and Branch API endpoints (list/create repositories, create/list branches) |

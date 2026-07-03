@@ -1,4 +1,6 @@
 import axios from "axios"
+import { asyncHandler } from "../utils/asyncHandler.js"
+import { response } from "express"
 
 const exchangeCodeForToken = async (code) => {
     console.log('CLIENT_ID:', process.env.CLIENT_ID)
@@ -108,4 +110,24 @@ const listGithubBranch = async(accessToken, owner, repoName) => {
     return response.data
 }
 
-export { exchangeCodeForToken, getGithubProfile , getGithubRepos, createGithubRepo, getGithubBranchSha, createGithubBranch, listGithubBranch}
+const deleteGithubrepo = async(accessToken, owner, repoName) => {
+    const response = await axios.delete(
+        `https://api.github.com/repos/${owner}/${repoName}`,
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            }
+        }
+    )
+    return response.data
+}
+
+const deleteGithubBranch = async(accessToken, owner, repoName, branchName) => {
+    const response = await axios.delete(
+        `https://api.github.com/repos/${owner}/${repoName}/git/refs/heads/${branchName}`,
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+    )
+    return response.data
+}
+
+export { exchangeCodeForToken, getGithubProfile , getGithubRepos, createGithubRepo, getGithubBranchSha, createGithubBranch, listGithubBranch, deleteGithubrepo, deleteGithubBranch}
