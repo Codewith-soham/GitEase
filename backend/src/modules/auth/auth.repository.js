@@ -55,7 +55,20 @@ const findSessionByToken = async(hashedToken) => {
 }
 
 const deleteALlSessions = async(userId) => {
-   return await Session.deleteMany({userId})  
+   return await Session.deleteMany({userId})
+}
+
+const findAgentSessionByToken = async(hashedToken) => {
+    const findSessionbyToken = await Session.findOne({
+        refreshToken : hashedToken,
+        type: 'agent'
+    })
+
+    return findSessionbyToken
+}
+
+const deleteAgentSessions = async(userId) => {
+   return await Session.deleteMany({userId, type: 'agent'})
 }
 
 const findSessionbyUserId = async(userId) => {    
@@ -86,6 +99,8 @@ export {
     deleteSession,
     findSessionByToken,
     deleteALlSessions,
+    findAgentSessionByToken,
+    deleteAgentSessions,
     findSessionbyUserId,
     findUserbyId,
     updateUserGithubtoken

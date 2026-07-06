@@ -1,5 +1,5 @@
 import { exchangeCodeForToken, getGithubProfile } from '../../services/github.services.js'
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../../utils/tokenGenration.js'
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken, generateAgentToken as generateAgentTokenUtil } from '../../utils/tokenGenration.js'
 import {
     findUserByGithubId,
     createUser,
@@ -10,6 +10,7 @@ import {
     deleteSession,
     findSessionByToken,
     deleteALlSessions,
+    deleteAgentSessions,
     findSessionbyUserId as findSessionsByUserIdRepository,
     updateUserGithubtoken,
 } from './auth.repository.js'
@@ -97,4 +98,24 @@ const findSessionbyUserId = async(userId) => {
     return sessions
 }
 
-export { handleGithubCallBack , logOutAllSessions, refreshAccessToken , findSessionbyUserId}
+const createAgentToken = async(userId) => {
+    const agentToken = generateAgentTokenUtil(userId)
+
+    const hashedToken = Session.hashToken(agentToken)
+
+    await createSession({
+        userId,
+        refreshToken: hashedToken,
+        type: 'agent',
+        deviceInfo: 'Local Agent',
+        expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
+    })
+
+    return agentToken
+}
+
+const revokeAgentTokens = async(userId) => {
+    return await deleteAgentSessions(userId)
+}
+
+export { handleGithubCallBack , logOutAllSessions, refreshAccessToken , findSessionbyUserId, createAgentToken, revokeAgentTokens}

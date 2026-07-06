@@ -1,6 +1,6 @@
 # GitEase API Specification
 
-**Document Version:** v0.2
+**Document Version:** v0.3
 
 **Status:** Draft
 
@@ -388,6 +388,70 @@ USER_001
 
 ---
 
+## 10.6 Generate Agent Token
+
+POST /api/auth/v1/agent-token
+
+Purpose
+
+Issue a long-lived token used by the local GitEase Agent to authenticate its WebSocket connection to the backend.
+
+Authentication Required
+
+Yes
+
+Request
+
+No request body.
+
+Response
+
+The raw agent token (string). It is hashed before storage and cannot be retrieved again after this response.
+
+Possible Errors
+
+AUTH_007
+
+SYSTEM_001
+
+Frontend Action
+
+Display the token once so the user can copy it into their local agent's environment.
+
+---
+
+## 10.7 Revoke Agent Token
+
+DELETE /api/auth/v1/agent-token
+
+Purpose
+
+Revoke all active agent tokens (sessions of type `agent`) belonging to the authenticated user.
+
+Authentication Required
+
+Yes
+
+Request
+
+No request body.
+
+Response
+
+Success message.
+
+Possible Errors
+
+AUTH_007
+
+SYSTEM_001
+
+Frontend Action
+
+Disconnect any active local agent connection state shown in the UI.
+
+---
+
 # 11. Repository Endpoints
 
 Repository endpoints proxy GitHub's REST API on behalf of the authenticated user, using the GitHub access token stored on their account.
@@ -534,7 +598,63 @@ SYSTEM_001
 
 ---
 
-# 12. HTTP Status Codes
+# 12. Automation Endpoints
+
+Automation endpoints drive the local GitEase Agent over WebSocket to run Git commands against a local working directory on the user's machine. The backend never executes Git commands directly — it forwards commands to the connected agent and streams back the result.
+
+---
+
+## 12.1 Push Changes
+
+POST /api/automation/v1/push
+
+Purpose
+
+Run an automated add → commit → push workflow against a local repository via the connected local agent.
+
+Authentication Required
+
+Yes
+
+Request
+
+cwd
+
+branch
+
+commitMessage (optional, defaults to "automated commit")
+
+Response
+
+Array of step results, each containing:
+
+step, exitCode, stdout, stderr
+
+One entry per workflow step that ran (`init`, `add`, `commit`, `push`). The array stops early if a step fails, except a `commit` step with nothing to commit, which is treated as non-fatal and followed by `push`.
+
+Possible Errors
+
+AUTH_007
+
+AGENT_001
+
+AGENT_002
+
+AGENT_003
+
+AGENT_005
+
+VALIDATION_001
+
+Frontend Action
+
+Render each step's stdout/stderr like a live terminal.
+
+Surface AGENT_005 as "a push is already running" rather than a generic error.
+
+---
+
+# 13. HTTP Status Codes
 
 200 OK
 
@@ -582,7 +702,7 @@ Unexpected server error.
 
 ---
 
-# 13. API Naming Standards
+# 14. API Naming Standards
 
 Resources
 
@@ -630,7 +750,7 @@ Never
 
 ---
 
-# 14. Security Considerations
+# 15. Security Considerations
 
 Access Tokens should never be stored in Local Storage.
 
@@ -650,7 +770,7 @@ Device Fingerprinting
 
 ---
 
-# 15. Future Endpoints
+# 16. Future Endpoints
 
 Commits
 
@@ -670,9 +790,10 @@ These endpoints will be documented as corresponding features are implemented.
 
 ---
 
-# 16. Revision History
+# 17. Revision History
 
 | Version | Description |
 |----------|-------------|
 | v0.1 | Initial Authentication API Specification |
 | v0.2 | Added Repository and Branch API endpoints (list/create repositories, create/list branches) |
+| v0.3 | Added agent-token endpoints and the Automation push workflow endpoint |

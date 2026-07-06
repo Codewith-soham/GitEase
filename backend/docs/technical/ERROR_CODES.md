@@ -111,7 +111,19 @@ Numbers should never be reused once published.
 
 ---
 
-# 8. Future Modules
+# 8. Agent & Automation Errors
+
+| Code      | HTTP | Name               | Description                                              |
+| --------- | ---- | ------------------ | --------------------------------------------------------- |
+| AGENT_001 | 409  | NOT_CONNECTED      | Local agent is not connected via WebSocket.                |
+| AGENT_002 | 504  | COMMAND_TIMEOUT     | Agent command did not complete within the timeout window.  |
+| AGENT_003 | 422  | COMMAND_FAILED      | Agent command executed but exited with a non-zero status.  |
+| AGENT_004 | 401  | UNAUTHORIZED_AGENT  | Agent token is invalid, expired, or revoked.               |
+| AGENT_005 | 409  | PUSH_IN_PROGRESS    | A push workflow is already in progress for this user.      |
+
+---
+
+# 9. Future Modules
 
 Reserved prefixes:
 
@@ -129,15 +141,13 @@ WORKSPACE_XXX
 SETTINGS_XXX
 
 NOTIFICATION_XXX
-
-AGENT_XXX
 ```
 
 These modules will define their own error codes as new features are implemented.
 
 ---
 
-# 9. Engineering Guidelines
+# 10. Engineering Guidelines
 
 * Never return plain text errors.
 * Every error must have:
@@ -151,7 +161,7 @@ These modules will define their own error codes as new features are implemented.
 
 ---
 
-# 10. Traceability
+# 11. Traceability
 
 | Module                | Related Document      |
 | --------------------- | --------------------- |
@@ -163,8 +173,9 @@ Each error code should map back to a documented business rule or technical requi
 
 ---
 
-# 11. Revision History
+# 12. Revision History
 
 | Version | Description                                                          |
 | ------- | -------------------------------------------------------------------- |
 | v0.1    | Initial error code specification for Authentication and User modules |
+| v0.2    | Added Agent & Automation error codes (AGENT_001–AGENT_005)            |

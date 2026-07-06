@@ -29,6 +29,8 @@ JWT_ACCESS_TOKEN=
 JWT_ACCESS_TOKEN_EXPIRY=
 JWT_REFRESH_TOKEN=
 JWT_REFRESH_TOKEN_EXPIRY=
+JWT_AGENT_TOKEN=
+JWT_AGENT_TOKEN_EXPIRY=
 ```
 
 `CLIENT_ID` / `CLIENT_SECRET` are the GitHub OAuth App credentials used for login and to access the GitHub API on behalf of the user.

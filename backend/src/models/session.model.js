@@ -14,6 +14,12 @@ const sessionSchema = new mongoose.Schema(
             required: true
         },
 
+        type: {
+            type: String,
+            enum: ['web', 'agent'],
+            default: 'web'
+        },
+
         deviceInfo: {
             type: String,
             required: true,

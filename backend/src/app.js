@@ -5,6 +5,7 @@ import morgan from "morgan";
 import authRoutes from './modules/auth/auth.routes.js'
 import { errorMiddleware } from "./middleware/error.middleware.js";
 import repositoryRouter from './modules/repository/repository.route.js'
+import automationRouter from './modules/automation/automation.routes.js'
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use(morgan("dev"));
 
 app.use('/api/auth/v1', authRoutes)
 app.use('/api/repository/v1', repositoryRouter)
+app.use('/api/automation/v1', automationRouter)
 app.use(errorMiddleware)
 
 export { app };

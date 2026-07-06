@@ -24,8 +24,24 @@ const verifyRefreshToken = (token) => {
     return jwt.verify(token, process.env.JWT_REFRESH_TOKEN)
 }
 
+const generateAgentToken = (userId) => {
+    return jwt.sign(
+        { userId, type: 'agent' },
+        process.env.JWT_AGENT_TOKEN,
+        {
+            expiresIn: process.env.JWT_AGENT_TOKEN_EXPIRY
+        }
+    )
+}
+
+const verifyAgentToken = (token) => {
+    return jwt.verify(token, process.env.JWT_AGENT_TOKEN)
+}
+
 export {
     generateAccessToken,
     generateRefreshToken,
-    verifyRefreshToken
+    verifyRefreshToken,
+    generateAgentToken,
+    verifyAgentToken
 }

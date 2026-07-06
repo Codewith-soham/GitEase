@@ -1,4 +1,4 @@
-import { handleGithubCallBack as githubCallbackService, logOutAllSessions, refreshAccessToken, findSessionbyUserId } from './auth.service.js'
+import { handleGithubCallBack as githubCallbackService, logOutAllSessions, refreshAccessToken, findSessionbyUserId, createAgentToken as createAgentTokenService, revokeAgentTokens } from './auth.service.js'
 import { asyncHandler } from '../../utils/asyncHandler.js'
 import { ApiResponse } from '../../utils/ApiResponse.js'
 import { deleteSession, findSessionByToken } from './auth.repository.js'
@@ -98,6 +98,16 @@ const getAllSessions = asyncHandler(async(req,res) => {
     return res.status(200).json(new ApiResponse(200, allSessions , "Sessions fetched successfully"))
 })
 
+const generateAgentToken = asyncHandler(async(req,res) => {
+    const agentToken = await createAgentTokenService(req.user._id)
 
+    return res.status(200).json(new ApiResponse(200, agentToken, "Agent token generated successfully"))
+})
 
-export { redirectToGithub, handleGithubCallBack, getMe, logOut , logOutAll , newAccessToken, getAllSessions}
+const revokeAgentToken = asyncHandler(async(req,res) => {
+    await revokeAgentTokens(req.user._id)
+
+    return res.status(200).json(new ApiResponse(200, null, "Agent tokens revoked successfully"))
+})
+
+export { redirectToGithub, handleGithubCallBack, getMe, logOut , logOutAll , newAccessToken, getAllSessions, generateAgentToken, revokeAgentToken}
