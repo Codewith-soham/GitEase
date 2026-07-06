@@ -56,7 +56,7 @@ const handleAgentMessage = (userId, data) => {
             clearTimeout(pending.timer)
             pendingRequests.delete(id)
             pending.resolve({
-                exitCode: message.exitCode,
+                exitCode: message.code,
                 stdout: pending.stdout,
                 stderr: pending.stderr
             })

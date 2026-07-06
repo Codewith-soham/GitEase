@@ -7,7 +7,7 @@ import { handleAgentMessage } from "../services/agent.services.js"
 const agentConnections = new Map()
 
 export const getAgentConnection = (userId) => {
-    return agentConnections.get(userId)
+    return agentConnections.get(String(userId))
 }
 
 export const setupWebSocket = (server) => {
@@ -34,12 +34,12 @@ export const setupWebSocket = (server) => {
             return
         }
 
-        const existingConnection = agentConnections.get(userId)
+        const existingConnection = agentConnections.get(String(userId))
         if (existingConnection) {
             existingConnection.terminate()
         }
 
-        agentConnections.set(userId, ws)
+        agentConnections.set(String(userId), ws)
 
         console.log("Agent connected")
 
