@@ -7,6 +7,7 @@ const ALLOWED_COMMANDS = {
   pull: { minArgs: 0, maxArgs: 2 },
   push: { minArgs: 0, maxArgs: 3 },
   commit: { minArgs: 2, maxArgs: 2 }, // -m "message"
+  checkout: { minArgs: 1, maxArgs: 2 },
   status: { minArgs: 0, maxArgs: 0 },
   init: {minArgs: 0, maxArgs: 0},
   add: {minArgs: 1, maxArgs: 1}
