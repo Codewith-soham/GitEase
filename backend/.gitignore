@@ -1,4 +1,6 @@
 node_modules/
+.env
+.env.*
 coverage/
 dist/
 build/
@@ -10,5 +12,3 @@ yarn-error.log*
 .DS_Store
 .idea/
 .vscode/
-.env
-.env_example
