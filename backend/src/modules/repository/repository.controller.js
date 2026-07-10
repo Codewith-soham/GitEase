@@ -1,0 +1,50 @@
+import { createRepository, getRepos , createBranch, listBranch, deleteRepo, deleteBranch } from "./repository.service.js";
+import { asyncHandler } from "../../utils/asyncHandler.js"
+import { ApiResponse } from "../../utils/ApiResponse.js"
+import { ApiError } from "../../utils/ApiError.js"
+
+const getGitHubRepo = asyncHandler(async(req,res) => {
+    const repository = await getRepos(req.user._id)
+    return res.status(200).json(new ApiResponse(200, repository, "Repository fetched successfully"))
+})
+
+const createRepo = asyncHandler(async(req,res) => {
+    console.log("req.user:", req.user)
+    
+    const newRepo = await createRepository(req.user, req.body)
+
+    return res.status(200).json(new ApiResponse(200, newRepo, "New Repository created successfully"))
+})
+
+const createNewBranch = asyncHandler(async(req,res) => {
+    const newBranch = await createBranch(req.user, req.params.repoName,req.body)
+
+    return res.status(200).json(new ApiResponse(200, newBranch, "New branch created"))
+})
+
+const listBranches = asyncHandler(async(req,res) => {
+    const listedBranch = await listBranch(req.user, req.params.repoName)
+
+    return res.status(200).json(new ApiResponse(200, listedBranch, "listed branches fetched"))
+})
+
+const deleteRepository = asyncHandler(async(req,res) => {
+    const deleteRepo = await deleteRepo(req.user, req.params.repoName)
+
+    return res.status(200).json(new ApiResponse(200, deleteRepo, "deleted repository successfully"))
+})
+
+const deleteRepositoryBranch = asyncHandler(async(req,res) => {
+    await deleteBranch(req.user, req.params.repoName, req.params.branchName)
+
+    return res.status(200).json(new ApiResponse(200, deleteRepositoryBranch, "deleted branch successfully"))
+})
+
+export {
+    getGitHubRepo,
+    createRepo,
+    createNewBranch,
+    listBranches,
+    deleteRepository,
+    deleteRepositoryBranch
+}
