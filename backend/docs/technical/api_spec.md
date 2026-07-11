@@ -1,6 +1,6 @@
 # GitEase API Specification
 
-**Document Version:** v0.3
+**Document Version:** v0.4
 
 **Status:** Draft
 
@@ -654,7 +654,405 @@ Surface AGENT_005 as "a push is already running" rather than a generic error.
 
 ---
 
-# 13. HTTP Status Codes
+# 13. Git Command Endpoints
+
+Git command endpoints drive individual Git commands against a local working directory via the connected local agent. Unlike the Automation push workflow, each endpoint here maps to a single Git command. The backend never executes Git commands directly — it resolves `repositoryId` to a trusted local path (never trusting a client-supplied `cwd`), forwards the command to the connected agent, and returns the result.
+
+All request bodies below also require `repositoryId`, used to resolve the local working directory. All responses share the same shape: `exitCode`, `stdout`, `stderr`, wrapped in the standard success envelope (`{ success, message, data }`).
+
+---
+
+## 13.1 Status
+
+POST /api/git/v1/status
+
+Purpose
+
+Run `git status` against the resolved local repository.
+
+Authentication Required
+
+Yes
+
+Request
+
+repositoryId
+
+Response
+
+exitCode, stdout, stderr
+
+Possible Errors
+
+AUTH_007
+
+AGENT_001
+
+AGENT_002
+
+AGENT_003
+
+AGENT_006
+
+VALIDATION_001
+
+404 if no local repository mapping exists for repositoryId
+
+SYSTEM_001
+
+---
+
+## 13.2 Add
+
+POST /api/git/v1/add
+
+Purpose
+
+Stage files in the resolved local repository.
+
+Authentication Required
+
+Yes
+
+Request
+
+repositoryId
+
+files (optional array of file paths; stages all changes if omitted)
+
+Response
+
+exitCode, stdout, stderr
+
+Possible Errors
+
+AUTH_007
+
+AGENT_001
+
+AGENT_002
+
+AGENT_003
+
+AGENT_006
+
+VALIDATION_001
+
+404 if no local repository mapping exists for repositoryId
+
+SYSTEM_001
+
+---
+
+## 13.3 Commit
+
+POST /api/git/v1/commit
+
+Purpose
+
+Commit staged changes in the resolved local repository.
+
+Authentication Required
+
+Yes
+
+Request
+
+repositoryId
+
+commitMessage
+
+Response
+
+exitCode, stdout, stderr
+
+Possible Errors
+
+AUTH_007
+
+AGENT_001
+
+AGENT_002
+
+AGENT_003
+
+AGENT_006
+
+VALIDATION_001
+
+404 if no local repository mapping exists for repositoryId
+
+SYSTEM_001
+
+---
+
+## 13.4 Push
+
+POST /api/git/v1/push
+
+Purpose
+
+Push local commits to a remote branch.
+
+Authentication Required
+
+Yes
+
+Request
+
+repositoryId
+
+branch (optional)
+
+remote (optional, defaults to `origin`)
+
+Response
+
+exitCode, stdout, stderr
+
+Possible Errors
+
+AUTH_007
+
+AGENT_001
+
+AGENT_002
+
+AGENT_003
+
+AGENT_006
+
+VALIDATION_001
+
+404 if no local repository mapping exists for repositoryId
+
+SYSTEM_001
+
+---
+
+## 13.5 Pull
+
+POST /api/git/v1/pull
+
+Purpose
+
+Pull changes from a remote branch into the resolved local repository.
+
+Authentication Required
+
+Yes
+
+Request
+
+repositoryId
+
+branch (optional)
+
+remote (optional, defaults to `origin`)
+
+Response
+
+exitCode, stdout, stderr
+
+Possible Errors
+
+AUTH_007
+
+AGENT_001
+
+AGENT_002
+
+AGENT_003
+
+AGENT_006
+
+VALIDATION_001
+
+404 if no local repository mapping exists for repositoryId
+
+SYSTEM_001
+
+---
+
+## 13.6 Fetch
+
+POST /api/git/v1/fetch
+
+Purpose
+
+Fetch refs from a remote without merging.
+
+Authentication Required
+
+Yes
+
+Request
+
+repositoryId
+
+Response
+
+exitCode, stdout, stderr
+
+Possible Errors
+
+AUTH_007
+
+AGENT_001
+
+AGENT_002
+
+AGENT_003
+
+AGENT_006
+
+VALIDATION_001
+
+404 if no local repository mapping exists for repositoryId
+
+SYSTEM_001
+
+---
+
+## 13.7 Create Branch
+
+POST /api/git/v1/create-branch
+
+Purpose
+
+Create and switch to a new branch in the resolved local repository.
+
+Authentication Required
+
+Yes
+
+Request
+
+repositoryId
+
+branch
+
+Response
+
+exitCode, stdout, stderr
+
+Possible Errors
+
+AUTH_007
+
+AGENT_001
+
+AGENT_002
+
+AGENT_003
+
+AGENT_006
+
+VALIDATION_001
+
+404 if no local repository mapping exists for repositoryId
+
+SYSTEM_001
+
+---
+
+## 13.8 Switch Branch
+
+POST /api/git/v1/switch-branch
+
+Purpose
+
+Switch to an existing branch in the resolved local repository.
+
+Authentication Required
+
+Yes
+
+Request
+
+repositoryId
+
+branch
+
+Response
+
+exitCode, stdout, stderr
+
+Possible Errors
+
+AUTH_007
+
+AGENT_001
+
+AGENT_002
+
+AGENT_003
+
+AGENT_006
+
+VALIDATION_001
+
+404 if no local repository mapping exists for repositoryId
+
+SYSTEM_001
+
+---
+
+## 13.9 Delete Branch
+
+POST /api/git/v1/delete-branch
+
+Purpose
+
+Delete a branch in the resolved local repository. Destructive — requires explicit client confirmation.
+
+Authentication Required
+
+Yes
+
+Request
+
+repositoryId
+
+branch
+
+force (optional, uses `-D` instead of `-d` when true)
+
+confirmed (must be `true`, or the request is rejected before any agent command runs)
+
+Response
+
+exitCode, stdout, stderr
+
+Possible Errors
+
+AUTH_007
+
+AGENT_001
+
+AGENT_002
+
+AGENT_003
+
+AGENT_006
+
+AGENT_007
+
+VALIDATION_001
+
+404 if no local repository mapping exists for repositoryId
+
+SYSTEM_001
+
+Frontend Action
+
+Require the user to explicitly confirm the deletion in the UI before sending `confirmed:true`.
+
+Surface AGENT_007 as "confirmation required" rather than a generic error.
+
+---
+
+# 14. HTTP Status Codes
 
 200 OK
 
@@ -702,7 +1100,7 @@ Unexpected server error.
 
 ---
 
-# 14. API Naming Standards
+# 15. API Naming Standards
 
 Resources
 
@@ -750,7 +1148,7 @@ Never
 
 ---
 
-# 15. Security Considerations
+# 16. Security Considerations
 
 Access Tokens should never be stored in Local Storage.
 
@@ -770,7 +1168,7 @@ Device Fingerprinting
 
 ---
 
-# 16. Future Endpoints
+# 17. Future Endpoints
 
 Commits
 
@@ -790,10 +1188,11 @@ These endpoints will be documented as corresponding features are implemented.
 
 ---
 
-# 17. Revision History
+# 18. Revision History
 
 | Version | Description |
 |----------|-------------|
 | v0.1 | Initial Authentication API Specification |
 | v0.2 | Added Repository and Branch API endpoints (list/create repositories, create/list branches) |
 | v0.3 | Added agent-token endpoints and the Automation push workflow endpoint |
+| v0.4 | Added the nine Git Command endpoints (status, add, commit, push, pull, fetch, create-branch, switch-branch, delete-branch) and AGENT_006–AGENT_007 error codes |

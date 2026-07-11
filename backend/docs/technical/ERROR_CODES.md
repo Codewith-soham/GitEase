@@ -120,6 +120,8 @@ Numbers should never be reused once published.
 | AGENT_003 | 422  | COMMAND_FAILED      | Agent command executed but exited with a non-zero status.  |
 | AGENT_004 | 401  | UNAUTHORIZED_AGENT  | Agent token is invalid, expired, or revoked.               |
 | AGENT_005 | 409  | PUSH_IN_PROGRESS    | A push workflow is already in progress for this user.      |
+| AGENT_006 | 400  | INVALID_COMMAND_ARGS | Command failed agent-side validation before it was ever spawned (unsafe path, branch name, or argument). |
+| AGENT_007 | 400  | CONFIRMATION_REQUIRED | A confirmation-required command (e.g. delete branch) was sent without confirmed:true. |
 
 ---
 
@@ -179,3 +181,4 @@ Each error code should map back to a documented business rule or technical requi
 | ------- | -------------------------------------------------------------------- |
 | v0.1    | Initial error code specification for Authentication and User modules |
 | v0.2    | Added Agent & Automation error codes (AGENT_001–AGENT_005)            |
+| v0.3    | Added AGENT_006–AGENT_007 for the generalized git command layer.     |

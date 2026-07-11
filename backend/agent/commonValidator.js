@@ -8,9 +8,9 @@ const ALLOWED_COMMANDS = {
   push: { minArgs: 0, maxArgs: 3 },
   commit: { minArgs: 2, maxArgs: 2 }, // -m "message"
   checkout: { minArgs: 1, maxArgs: 2 },
-  status: { minArgs: 0, maxArgs: 0 },
+  status: { minArgs: 2, maxArgs: 2 }, // --porcelain=v2 -b
   init: {minArgs: 0, maxArgs: 0},
-  add: {minArgs: 1, maxArgs: 1},
+  add: { minArgs: 2, maxArgs: 1000 }, // -- <file...>, translateCommand always prefixes with '--'
   fetch: { minArgs: 1, maxArgs: 1 },
   createBranch: { minArgs: 1, maxArgs: 2 }, // checkout -b <branch>
   switchBranch: { minArgs: 1, maxArgs: 1 }, // checkout <branch>

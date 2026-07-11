@@ -11,7 +11,7 @@ const inFlightUsers = new Set()
 // intentionally not put on the wire: the agent's websocketHandler already
 // runs every incoming payload through translateCommand/validateCommand using
 // the semantic `command` field, so translation happens once, agent-side.
-const runAgentCommand = (userId, { command, gitCommand, args, cwd }, { timeoutMs = 60000, onStarted } = {}) => {
+const runAgentCommand = (userId, { gitCommand, ...payload }, { timeoutMs = 60000, onStarted } = {}) => {
     const ws = getAgentConnection(userId)
 
     if (!ws) {
@@ -28,7 +28,10 @@ const runAgentCommand = (userId, { command, gitCommand, args, cwd }, { timeoutMs
 
         pendingRequests.set(id, { resolve, reject, stdout: '', stderr: '', timer, onStarted })
 
-        ws.send(JSON.stringify({ id, command, args, cwd }))
+        // Forward the full command spec (command + any semantic fields like
+        // files/branch/remote/commitMessage/force, plus cwd) as-is — the
+        // agent's translateCommand turns these into the actual git args.
+        ws.send(JSON.stringify({ id, ...payload }))
     })
 }
 
