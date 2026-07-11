@@ -6,7 +6,12 @@ const pendingRequests = new Map()
 
 const inFlightUsers = new Set()
 
-const runAgentCommand = (userId, { command, args, cwd }, { timeoutMs = 60000 } = {}) => {
+// `gitCommand` (Task 1.1's createBranch/switchBranch/deleteBranch mapping) is
+// accepted here for signature parity with the agent-side translator, but is
+// intentionally not put on the wire: the agent's websocketHandler already
+// runs every incoming payload through translateCommand/validateCommand using
+// the semantic `command` field, so translation happens once, agent-side.
+const runAgentCommand = (userId, { command, gitCommand, args, cwd }, { timeoutMs = 60000, onStarted } = {}) => {
     const ws = getAgentConnection(userId)
 
     if (!ws) {
@@ -21,7 +26,7 @@ const runAgentCommand = (userId, { command, args, cwd }, { timeoutMs = 60000 } =
             reject(new ApiError(504, "Agent command timed out"))
         }, timeoutMs)
 
-        pendingRequests.set(id, { resolve, reject, stdout: '', stderr: '', timer })
+        pendingRequests.set(id, { resolve, reject, stdout: '', stderr: '', timer, onStarted })
 
         ws.send(JSON.stringify({ id, command, args, cwd }))
     })
@@ -44,6 +49,10 @@ const handleAgentMessage = (userId, data) => {
     }
 
     switch (type) {
+        case 'started':
+            pending.onStarted?.(message)
+            break
+
         case 'stdout':
             pending.stdout += message.data
             break

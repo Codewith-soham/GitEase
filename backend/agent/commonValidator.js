@@ -10,13 +10,57 @@ const ALLOWED_COMMANDS = {
   checkout: { minArgs: 1, maxArgs: 2 },
   status: { minArgs: 0, maxArgs: 0 },
   init: {minArgs: 0, maxArgs: 0},
-  add: {minArgs: 1, maxArgs: 1}
+  add: {minArgs: 1, maxArgs: 1},
+  fetch: { minArgs: 1, maxArgs: 1 },
+  createBranch: { minArgs: 1, maxArgs: 2 }, // checkout -b <branch>
+  switchBranch: { minArgs: 1, maxArgs: 1 }, // checkout <branch>
+  deleteBranch: { minArgs: 2, maxArgs: 2 } // branch -d|-D <branch>
 };
 
 const UNSAFE_PATTERN = /[;&|`$()<>\\]|\.\./;
 
+// Matches a valid branch name: no whitespace, none of ~^:?*[`, no leading '-',
+// no leading/trailing '/' or '.', no '..', max length 250.
+const BRANCH_NAME_PATTERN = /^(?!-)(?!.*\.\.)(?!.*[/.]$)[^\s~^:?*[`/.][^\s~^:?*[`]{0,249}$/;
+
 function isSafeArg(arg) {
   return typeof arg === 'string' && arg.length < 500 && !UNSAFE_PATTERN.test(arg);
+}
+
+function isSafeBranchName(name) {
+  return typeof name === 'string' && name.length > 0 && name.length <= 250 && BRANCH_NAME_PATTERN.test(name);
+}
+
+function isSafeFilePath(file, cwd) {
+  if (file === '.') {
+    return true;
+  }
+  if (typeof file !== 'string' || !file) {
+    return false;
+  }
+  const resolvedCwd = path.resolve(cwd);
+  const resolvedFile = path.resolve(cwd, file);
+  return resolvedFile === resolvedCwd || resolvedFile.startsWith(resolvedCwd + path.sep);
+}
+
+const REMOTE_NAME_PATTERN = /^[a-zA-Z0-9_.-]+$/;
+
+function getRemoteArg(command, args) {
+  if (command === 'push') {
+    if (args.length === 0) return undefined;
+    return args[0] === '-u' ? args[1] : args[0];
+  }
+  if (command === 'pull' || command === 'fetch') {
+    return args.length > 0 ? args[0] : undefined;
+  }
+  return undefined;
+}
+
+function getBranchArg(command, args) {
+  if (['checkout', 'createBranch', 'switchBranch', 'deleteBranch'].includes(command)) {
+    return args.length > 0 ? args[args.length - 1] : undefined;
+  }
+  return undefined;
 }
 
 function validateCwd(cwd, requireGitRepo = true) {
@@ -52,6 +96,24 @@ export function validateCommand({ command, args = [], cwd }) {
   // clone and init don't require an existing repo at cwd (target dir may not exist yet / not a repo yet)
   const requireGitRepo = !['clone', 'init'].includes(command);
   const safeCwd = validateCwd(cwd, requireGitRepo);
+
+  if (command === 'add') {
+    for (const arg of args) {
+      if (arg !== '.' && !isSafeFilePath(arg, safeCwd)) {
+        throw new Error(`Unsafe file path rejected: ${arg}`);
+      }
+    }
+  }
+
+  const branchArg = getBranchArg(command, args);
+  if (branchArg !== undefined && !isSafeBranchName(branchArg)) {
+    throw new Error(`Unsafe branch name rejected: ${branchArg}`);
+  }
+
+  const remoteArg = getRemoteArg(command, args);
+  if (remoteArg !== undefined && !REMOTE_NAME_PATTERN.test(remoteArg)) {
+    throw new Error(`Unsafe remote name rejected: ${remoteArg}`);
+  }
 
   return { command, args, cwd: safeCwd };
 }
