@@ -9,8 +9,15 @@ import {
     switchBranch as switchBranchService,
     deleteBranch as deleteBranchService
 } from "./git.service.js";
+import {
+    connectLocalRepo as connectLocalRepoService,
+    listLocalRepoPaths as listLocalRepoPathsService,
+    removeLocalRepoPath as removeLocalRepoPathService
+} from "../repository/repository.service.js";
+import { getAgentConnection } from "../../config/webScoket.config.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
+import { ApiError } from "../../utils/ApiError.js";
 
 const getStatus = asyncHandler(async(req, res) => {
     const { repositoryId } = req.body
@@ -84,6 +91,38 @@ const deleteBranch = asyncHandler(async(req, res) => {
     return res.status(200).json(new ApiResponse(200, result, "Delete branch completed"))
 })
 
+const connectLocalRepo = asyncHandler(async(req, res) => {
+    const { repositoryId, localPath } = req.body
+
+    if (!repositoryId || !localPath) {
+        throw new ApiError(400, "repositoryId and localPath are required")
+    }
+
+    const result = await connectLocalRepoService(req.user._id, repositoryId, localPath)
+
+    return res.status(200).json(new ApiResponse(200, result, "Local repository connected"))
+})
+
+const getLocalRepos = asyncHandler(async(req, res) => {
+    const result = await listLocalRepoPathsService(req.user._id)
+
+    return res.status(200).json(new ApiResponse(200, result, "Local repositories fetched"))
+})
+
+const disconnectLocalRepo = asyncHandler(async(req, res) => {
+    const { repositoryId } = req.params
+
+    const result = await removeLocalRepoPathService(req.user._id, repositoryId)
+
+    return res.status(200).json(new ApiResponse(200, result, "Local repository disconnected"))
+})
+
+const getAgentStatus = asyncHandler(async(req, res) => {
+    const ws = getAgentConnection(req.user._id)
+
+    return res.status(200).json(new ApiResponse(200, { connected: !!ws && ws.readyState === 1 }, "Agent status fetched"))
+})
+
 export {
     getStatus,
     addFiles,
@@ -93,5 +132,9 @@ export {
     fetchRemote,
     createBranch,
     switchBranch,
-    deleteBranch
+    deleteBranch,
+    connectLocalRepo,
+    getLocalRepos,
+    disconnectLocalRepo,
+    getAgentStatus
 }

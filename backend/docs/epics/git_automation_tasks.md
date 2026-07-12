@@ -135,3 +135,4 @@ After Phase 2 (full stack):
 2. Exercise each of the 9 `/api/git/v1/*` endpoints against a real repo end-to-end; confirm responses match the `{exitCode, stdout, stderr}` shape.
 3. Call `delete-branch` without `confirmed: true` — confirm it's rejected with `AGENT_007` before any agent call is made.
 4. Call any endpoint with a `repositoryId` that has no local-path mapping — confirm `404 Local repository not found`, and that no request ever reaches the agent in that case.
+

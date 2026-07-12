@@ -1,6 +1,7 @@
+import path from "path";
 import { createGithubBranch, createGithubRepo, deleteGithubrepo, getGithubBranchSha, getGithubRepos, listGithubBranch, deleteGithubBranch } from "../../services/github.services.js";
 import { findUserbyId } from "../auth/auth.repository.js";
-import { findLocalRepo, upsertLocalRepo } from "./repository.repository.js";
+import { findLocalRepo, upsertLocalRepo, listLocalRepos, deleteLocalRepo } from "./repository.repository.js";
 import { ApiError } from "../../utils/ApiError.js";
 
 const getRepos = async(userId) => {
@@ -10,7 +11,7 @@ const getRepos = async(userId) => {
     return repos.map(repo => ({
         id: repo.id,
         name: repo.name,
-        fullname: repo.fullname,
+        fullname: repo.full_name,
         description: repo.description,
         visibility: repo.visibility,
         defaultBranch: repo.default_branch,
@@ -89,6 +90,57 @@ const recordLocalRepoPath = async(userId, repositoryId, localPath) => {
     return await upsertLocalRepo(userId, repositoryId, localPath)
 }
 
+const FORBIDDEN_PATH_CHARS = /[;&|`$()<>]/
+
+const validateLocalPath = (p) => {
+    if (typeof p !== "string" || p.length === 0) {
+        throw new ApiError(400, "localPath must be a non-empty string")
+    }
+
+    if (p.length >= 500) {
+        throw new ApiError(400, "localPath must be less than 500 characters")
+    }
+
+    if (!path.win32.isAbsolute(p) && !path.posix.isAbsolute(p)) {
+        throw new ApiError(400, "localPath must be an absolute path")
+    }
+
+    const segments = p.split(/[\\/]/)
+    if (segments.includes("..")) {
+        throw new ApiError(400, "localPath must not contain '..' segments")
+    }
+
+    if (FORBIDDEN_PATH_CHARS.test(p)) {
+        throw new ApiError(400, "localPath contains forbidden characters")
+    }
+}
+
+const connectLocalRepo = async(userId, repositoryId, localPath) => {
+    validateLocalPath(localPath)
+
+    return await recordLocalRepoPath(userId, repositoryId, localPath)
+}
+
+const listLocalRepoPaths = async(userId) => {
+    const localRepos = await listLocalRepos(userId)
+
+    return localRepos.map(localRepo => ({
+        repositoryId: localRepo.repositoryId,
+        localPath: localRepo.localPath,
+        updatedAt: localRepo.updatedAt
+    }))
+}
+
+const removeLocalRepoPath = async(userId, repositoryId) => {
+    const deleted = await deleteLocalRepo(userId, repositoryId)
+
+    if (!deleted) {
+        throw new ApiError(404, "Local repository not found")
+    }
+
+    return { deletedRepositoryId: repositoryId }
+}
+
 export {
     getRepos,
     createRepository,
@@ -97,5 +149,9 @@ export {
     deleteRepo,
     deleteBranch,
     resolveLocalRepoPath,
-    recordLocalRepoPath
+    recordLocalRepoPath,
+    validateLocalPath,
+    connectLocalRepo,
+    listLocalRepoPaths,
+    removeLocalRepoPath
 }

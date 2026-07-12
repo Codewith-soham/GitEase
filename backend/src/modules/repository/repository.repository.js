@@ -14,7 +14,17 @@ const upsertLocalRepo = async(userId, repositoryId, localPath) => {
     )
 }
 
+const listLocalRepos = async(userId) => {
+    return await LocalRepo.find({ userId })
+}
+
+const deleteLocalRepo = async(userId, repositoryId) => {
+    return await LocalRepo.findOneAndDelete({ userId, repositoryId })
+}
+
 export {
     findLocalRepo,
-    upsertLocalRepo
+    upsertLocalRepo,
+    listLocalRepos,
+    deleteLocalRepo
 }
