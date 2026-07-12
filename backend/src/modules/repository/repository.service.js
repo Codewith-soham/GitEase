@@ -60,7 +60,7 @@ const deleteRepo = async(user, repoName) => {
 
     const deletedRepo = await deleteGithubrepo(user.githubAccessToken, user.username, repoName)
 
-    return deleteRepo
+    return deletedRepo
 }
 
 const deleteBranch = async(user, repoName, branchName) => {

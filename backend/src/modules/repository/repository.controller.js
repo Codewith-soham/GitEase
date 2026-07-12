@@ -29,15 +29,15 @@ const listBranches = asyncHandler(async(req,res) => {
 })
 
 const deleteRepository = asyncHandler(async(req,res) => {
-    const deleteRepo = await deleteRepo(req.user, req.params.repoName)
+    const deletedRepo = await deleteRepo(req.user, req.params.repoName)
 
-    return res.status(200).json(new ApiResponse(200, deleteRepo, "deleted repository successfully"))
+    return res.status(200).json(new ApiResponse(200, deletedRepo, "deleted repository successfully"))
 })
 
 const deleteRepositoryBranch = asyncHandler(async(req,res) => {
-    await deleteBranch(req.user, req.params.repoName, req.params.branchName)
+    const deletedBranch = await deleteBranch(req.user, req.params.repoName, req.params.branchName)
 
-    return res.status(200).json(new ApiResponse(200, deleteRepositoryBranch, "deleted branch successfully"))
+    return res.status(200).json(new ApiResponse(200, deletedBranch, "deleted branch successfully"))
 })
 
 export {
