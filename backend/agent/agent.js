@@ -3,6 +3,7 @@
 // Connects to GitEase backend via WebSocket
 // Receives git commands and executes them locally
 
+import 'dotenv/config'
 import { createConnection, disconnectCurrent } from './websocketHandler.js'
 import { startPairingServer } from './pairingServer.js'
 import { loadToken, saveToken } from './configStore.js'
