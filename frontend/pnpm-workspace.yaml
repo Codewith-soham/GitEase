@@ -2,5 +2,9 @@ allowBuilds:
   msw: set this to true or false
   sharp: set this to true or false
 
+onlyBuiltDependencies:
+  - msw
+  - sharp
+
 overrides:
   hono: 4.12.25
