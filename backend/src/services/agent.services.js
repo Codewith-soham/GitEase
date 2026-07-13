@@ -74,11 +74,17 @@ const handleAgentMessage = (userId, data) => {
             })
             break
 
-        case 'error':
+        case 'error': {
             clearTimeout(pending.timer)
             pendingRequests.delete(id)
-            pending.reject(new ApiError(500, message.message || "Agent command failed"))
+            // REPO_BUSY is an expected, recoverable race (another command
+            // already running for this repo) — surface it as 409 so the
+            // frontend's isOperationInProgress toast handles it, not as a
+            // generic 500.
+            const statusCode = message.code === 'REPO_BUSY' ? 409 : 500
+            pending.reject(new ApiError(statusCode, message.message || "Agent command failed"))
             break
+        }
     }
 }
 

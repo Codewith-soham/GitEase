@@ -155,7 +155,7 @@ export function DashboardHome() {
 
       <div className="flex flex-wrap gap-2">
         <CreateRepoDialog />
-        <Button variant="outline" render={<Link href="/agent" />}>
+        <Button variant="outline" nativeButton={false} render={<Link href="/agent" />}>
           <Cable />
           Set up agent
         </Button>

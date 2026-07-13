@@ -35,7 +35,7 @@ MongoDB (Mongoose) — User, Session, LocalRepo
         │
         ▼
 WebSocket server (backend/src/config/webScoket.config.js)
-  authenticates agent connections via JWT_AGENT_TOKEN,
+  authenticates agent connections via AGENT_JWT_SECRET,
   one live connection tracked per userId
         │  ws://.../?token=<agent-jwt>
         ▼
@@ -182,7 +182,7 @@ All routes except `github`, `github/callback`, and `refresh-token` require `veri
 ## 8. Environment Variables
 
 **Backend** (`backend/.env`):
-`PORT`, `MONGO_URL`, `CLIENT_ID`, `CLIENT_SECRET`, `JWT_ACCESS_TOKEN`, `JWT_ACCESS_TOKEN_EXPIRY`, `JWT_REFRESH_TOKEN`, `JWT_REFRESH_TOKEN_EXPIRY`, `JWT_AGENT_TOKEN`, `JWT_AGENT_TOKEN_EXPIRY`
+`PORT`, `MONGO_URL`, `CLIENT_ID`, `CLIENT_SECRET`, `JWT_ACCESS_TOKEN`, `JWT_ACCESS_TOKEN_EXPIRY`, `JWT_REFRESH_TOKEN`, `JWT_REFRESH_TOKEN_EXPIRY`, `AGENT_JWT_SECRET`, `AGENT_JWT_SECRET_EXPIRY`
 
 **Local Agent** (`backend/agent`, process env):
 `GITEASE_BACKEND_URL` (defaults to `ws://localhost:5000`), `GITEASE_AGENT_TOKEN` (required — agent exits if unset)

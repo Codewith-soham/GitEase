@@ -230,6 +230,7 @@ GitEase is a visual Git workspace on top of GitHub for beginners and small teams
 - Responsive pass: sidebar Sheet on mobile, repo grid collapses, repo detail stacks to one column
 
 > **Prompt:**
+
 > ```
 > Read frontend/docs/frontend-design.md fully, then do Phase 7 (polish & QA). Phases 0–6 are done. Audit every dashboard page for loading/empty/error states and toasts, run `pnpm build` and `pnpm exec tsc --noEmit` in frontend/ and fix all errors, and verify the public marketing site and login page are unchanged.
 > ```

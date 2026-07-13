@@ -14,7 +14,7 @@ export function AgentOfflineCard() {
       <p className="max-w-sm text-xs text-muted-foreground">
         Start the local agent on your machine to run git commands against this repository.
       </p>
-      <Button variant="outline" render={<Link href="/agent" />}>
+      <Button variant="outline" nativeButton={false} render={<Link href="/agent" />}>
         Set up the agent
       </Button>
     </div>

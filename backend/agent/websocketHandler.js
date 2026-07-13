@@ -4,21 +4,37 @@ import { validateCommand } from './commonValidator.js'
 import { runCommand } from './processManager.js'
 
 const backendUrl = process.env.GITEASE_BACKEND_URL || 'ws://localhost:5000'
-const agentToken = process.env.GITEASE_AGENT_TOKEN
 
 const INITIAL_BACKOFF_MS = 1000
 const MAX_BACKOFF_MS = 30 * 1000
 
-if (!agentToken) {
-    console.error('GITEASE_AGENT_TOKEN is required. Set it in your environment before starting the agent.')
-    process.exit(1)
-}
+let currentWs = null
+// Bumped on every createConnection() call so a stale reconnect loop from a
+// previous (revoked/replaced) token stops retrying once a new one takes over.
+let generation = 0
 
-export function createConnection() {
+export function createConnection(token) {
+    if (!token) {
+        console.error('No agent token available yet. Open the GitEase dashboard and click "Connect Agent" to pair.')
+        return
+    }
+
+    generation += 1
+    const myGeneration = generation
+
+    if (currentWs) {
+        currentWs.removeAllListeners()
+        currentWs.terminate()
+        currentWs = null
+    }
+
     let backoff = INITIAL_BACKOFF_MS
 
     const connect = () => {
-        const ws = new WebSocket(`${backendUrl}?token=${agentToken}`)
+        if (myGeneration !== generation) return
+
+        const ws = new WebSocket(`${backendUrl}?token=${token}`)
+        currentWs = ws
 
         // Fires when connection is established
         ws.on('open', () => {
@@ -69,6 +85,7 @@ export function createConnection() {
 
         // Fires when connection is closed
         ws.on('close', () => {
+            if (myGeneration !== generation) return
             console.log('Disconnected from backend')
             setTimeout(connect, backoff)
             backoff = Math.min(backoff * 2, MAX_BACKOFF_MS)
@@ -83,4 +100,19 @@ export function createConnection() {
     }
 
     return connect()
+}
+
+// Closes the current connection and stops its reconnect loop (bumping
+// `generation` makes the closing connection's own `close` handler a no-op,
+// so it won't immediately redial itself). The saved token is untouched —
+// createConnection(token) can resume the connection later.
+export function disconnectCurrent() {
+    if (!currentWs) return false
+
+    generation += 1
+    currentWs.removeAllListeners()
+    currentWs.terminate()
+    currentWs = null
+
+    return true
 }

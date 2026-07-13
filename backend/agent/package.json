@@ -4,6 +4,9 @@
         "start": "node agent.js",
         "dev": "nodemon agent.js"
     },
+    "dependencies": {
+        "ws": "^8.21.0"
+    },
     "devDependencies": {
         "nodemon": "^3.1.10"
     }

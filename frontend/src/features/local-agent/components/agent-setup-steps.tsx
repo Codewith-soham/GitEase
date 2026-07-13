@@ -7,26 +7,28 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 const STEPS: { title: string; description: string; commands?: string[] }[] = [
   {
-    title: 'Generate a token',
-    description: 'Use the "Generate token" card below to create an agent token for your account.',
+    title: 'Start the agent',
+    description: 'From the backend/agent folder, run it once — it keeps running in the background:',
+    commands: ['node agent.js'],
   },
   {
-    title: 'Set it as an environment variable',
-    description: 'In the terminal you\'ll run the agent from:',
+    title: 'Click "Connect Agent"',
+    description:
+      'With the agent running, use the button above. It generates a token and hands it straight to the agent — no copy/paste needed.',
+  },
+  {
+    title: 'Watch the indicator',
+    description: 'Once connected, the status dot above (and in the topbar) turns green.',
+  },
+  {
+    title: "Agent not detected? Set the token manually",
+    description:
+      'If the button above shows "Generate token" instead, the agent isn\'t reachable on localhost. Copy the generated token and set it in the terminal you run the agent from:',
     commands: [
       'set GITEASE_AGENT_TOKEN=<token>',
       'export GITEASE_AGENT_TOKEN=<token>',
       'set GITEASE_BACKEND_URL=ws://localhost:5000 (optional, this is the default)',
     ],
-  },
-  {
-    title: 'Start the agent',
-    description: 'From the backend/agent folder:',
-    commands: ['node agent.js'],
-  },
-  {
-    title: 'Watch the indicator',
-    description: 'Once connected, the status dot above (and in the topbar) turns green.',
   },
 ]
 

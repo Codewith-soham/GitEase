@@ -27,15 +27,15 @@ const verifyRefreshToken = (token) => {
 const generateAgentToken = (userId) => {
     return jwt.sign(
         { userId, type: 'agent' },
-        process.env.JWT_AGENT_TOKEN,
+        process.env.AGENT_JWT_SECRET,
         {
-            expiresIn: process.env.JWT_AGENT_TOKEN_EXPIRY
+            expiresIn: process.env.AGENT_JWT_SECRET_EXPIRY
         }
     )
 }
 
 const verifyAgentToken = (token) => {
-    return jwt.verify(token, process.env.JWT_AGENT_TOKEN)
+    return jwt.verify(token, process.env.AGENT_JWT_SECRET)
 }
 
 export {

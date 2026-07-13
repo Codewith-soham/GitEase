@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, Copy, KeyRound, Loader2, TriangleAlert } from 'lucide-react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Check, Copy, KeyRound, Loader2, Plug, TriangleAlert } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   AlertDialog,
@@ -25,14 +26,55 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { useGenerateAgentToken, useRevokeAgentToken } from '@/features/auth/hooks/use-agent-token'
+import { pairLocalAgent, pingLocalAgent } from '@/features/local-agent/api/local-agent-loopback'
 
 export function AgentTokenSection() {
   const [tokenDialogOpen, setTokenDialogOpen] = useState(false)
   const [revokeOpen, setRevokeOpen] = useState(false)
   const [token, setToken] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [connecting, setConnecting] = useState(false)
+  const queryClient = useQueryClient()
   const generateMutation = useGenerateAgentToken()
   const revokeMutation = useRevokeAgentToken()
+
+  const { data: agentReachable } = useQuery({
+    queryKey: ['agent', 'loopback-reachable'],
+    queryFn: pingLocalAgent,
+    refetchInterval: 5000,
+    retry: false,
+  })
+
+  function refreshAgentStatus() {
+    queryClient.invalidateQueries({ queryKey: ['agent', 'status'] })
+    setTimeout(() => queryClient.invalidateQueries({ queryKey: ['agent', 'status'] }), 2000)
+  }
+
+  async function handleConnect() {
+    setConnecting(true)
+    try {
+      // Only one agent token should ever be live — clear any previous one
+      // before minting a fresh one, so the agent always ends up holding
+      // exactly the token that's actually valid.
+      await revokeMutation.mutateAsync().catch(() => {})
+      const newToken = await generateMutation.mutateAsync()
+      const paired = await pairLocalAgent(newToken)
+
+      if (paired) {
+        toast.success('Agent connected')
+        refreshAgentStatus()
+        return
+      }
+
+      // Agent isn't reachable on loopback — fall back to manual setup.
+      setToken(newToken)
+      setTokenDialogOpen(true)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to generate token')
+    } finally {
+      setConnecting(false)
+    }
+  }
 
   function handleGenerate() {
     generateMutation.mutate(undefined, {
@@ -69,13 +111,24 @@ export function AgentTokenSection() {
     <Card>
       <CardHeader>
         <CardTitle>Agent token</CardTitle>
-        <CardDescription>Authenticates the local agent running on your machine.</CardDescription>
+        <CardDescription>
+          {agentReachable
+            ? 'A local agent is running — connect it to your account in one click.'
+            : 'Authenticates the local agent running on your machine.'}
+        </CardDescription>
       </CardHeader>
       <CardContent className="flex gap-2">
-        <Button onClick={handleGenerate} disabled={generateMutation.isPending}>
-          {generateMutation.isPending ? <Loader2 className="animate-spin" /> : <KeyRound />}
-          Generate token
-        </Button>
+        {agentReachable ? (
+          <Button onClick={handleConnect} disabled={connecting}>
+            {connecting ? <Loader2 className="animate-spin" /> : <Plug />}
+            Connect Agent
+          </Button>
+        ) : (
+          <Button onClick={handleGenerate} disabled={generateMutation.isPending}>
+            {generateMutation.isPending ? <Loader2 className="animate-spin" /> : <KeyRound />}
+            Generate token
+          </Button>
+        )}
 
         <AlertDialog open={revokeOpen} onOpenChange={setRevokeOpen}>
           <AlertDialogTrigger render={<Button variant="destructive" />}>
