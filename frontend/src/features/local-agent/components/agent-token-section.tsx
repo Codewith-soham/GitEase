@@ -34,6 +34,7 @@ export function AgentTokenSection() {
   const [token, setToken] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [connecting, setConnecting] = useState(false)
+  const [generating, setGenerating] = useState(false)
   const queryClient = useQueryClient()
   const generateMutation = useGenerateAgentToken()
   const revokeMutation = useRevokeAgentToken()
@@ -67,6 +68,7 @@ export function AgentTokenSection() {
       }
 
       // Agent isn't reachable on loopback — fall back to manual setup.
+      toast.error('Local agent not detected on this machine — start it, then set the token below')
       setToken(newToken)
       setTokenDialogOpen(true)
     } catch (err) {
@@ -76,16 +78,20 @@ export function AgentTokenSection() {
     }
   }
 
-  function handleGenerate() {
-    generateMutation.mutate(undefined, {
-      onSuccess: (data) => {
-        setToken(data)
-        setTokenDialogOpen(true)
-      },
-      onError: (err) => {
-        toast.error(err instanceof Error ? err.message : 'Failed to generate token')
-      },
-    })
+  async function handleGenerate() {
+    setGenerating(true)
+    try {
+      // Same as handleConnect — clear any previous agent token first so
+      // this doesn't accumulate stale sessions on repeated use.
+      await revokeMutation.mutateAsync().catch(() => {})
+      const data = await generateMutation.mutateAsync()
+      setToken(data)
+      setTokenDialogOpen(true)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to generate token')
+    } finally {
+      setGenerating(false)
+    }
   }
 
   async function handleCopy() {
@@ -118,17 +124,14 @@ export function AgentTokenSection() {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex gap-2">
-        {agentReachable ? (
-          <Button onClick={handleConnect} disabled={connecting}>
-            {connecting ? <Loader2 className="animate-spin" /> : <Plug />}
-            Connect Agent
-          </Button>
-        ) : (
-          <Button onClick={handleGenerate} disabled={generateMutation.isPending}>
-            {generateMutation.isPending ? <Loader2 className="animate-spin" /> : <KeyRound />}
-            Generate token
-          </Button>
-        )}
+        <Button onClick={handleGenerate} disabled={generating} variant="outline">
+          {generating ? <Loader2 className="animate-spin" /> : <KeyRound />}
+          Generate token
+        </Button>
+        <Button onClick={handleConnect} disabled={connecting}>
+          {connecting ? <Loader2 className="animate-spin" /> : <Plug />}
+          Connect Agent
+        </Button>
 
         <AlertDialog open={revokeOpen} onOpenChange={setRevokeOpen}>
           <AlertDialogTrigger render={<Button variant="destructive" />}>
@@ -157,7 +160,7 @@ export function AgentTokenSection() {
           <DialogHeader>
             <DialogTitle>Your agent token</DialogTitle>
             <DialogDescription>
-              Copy it now and set it as GITEASE_AGENT_TOKEN — it will not be shown again.
+              Copy it now and set it as AGENT_JWT_TOKEN — it will not be shown again.
             </DialogDescription>
           </DialogHeader>
 

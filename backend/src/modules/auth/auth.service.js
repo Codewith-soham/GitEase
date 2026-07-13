@@ -16,6 +16,7 @@ import {
 } from './auth.repository.js'
 import { Session } from '../../models/session.model.js'
 import { ApiError } from '../../utils/ApiError.js'
+import { getAgentConnection } from '../../config/webScoket.config.js'
 
 
 const handleGithubCallBack = async (code, deviceInfo, ip, userAgent) => {
@@ -115,7 +116,17 @@ const createAgentToken = async(userId) => {
 }
 
 const revokeAgentTokens = async(userId) => {
-    return await deleteAgentSessions(userId)
+    const result = await deleteAgentSessions(userId)
+
+    // Same close code webScoket.config.js uses for a failed handshake, so
+    // the agent's close handler can treat both as "this token is dead" and
+    // stop retrying with it instead of looping forever.
+    const ws = getAgentConnection(userId)
+    if (ws) {
+        ws.close(4001, 'Token revoked')
+    }
+
+    return result
 }
 
 export { handleGithubCallBack , logOutAllSessions, refreshAccessToken , findSessionbyUserId, createAgentToken, revokeAgentTokens}

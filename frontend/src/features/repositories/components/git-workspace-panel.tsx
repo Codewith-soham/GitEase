@@ -153,6 +153,10 @@ function ChangesAndBranches({
     repositoryId,
     label: 'git add',
     mutationFn: (files) => gitAdd(repositoryId, files),
+    // Always immediately followed by commitMutation in handleCommit, which
+    // invalidates status right after — skip it here so the background
+    // refetch it would trigger doesn't race the commit at the agent's lock.
+    skipStatusInvalidate: true,
   })
   const commitMutation = useGitMutation<string>({
     repositoryId,

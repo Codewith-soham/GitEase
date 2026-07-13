@@ -25,8 +25,8 @@ const STEPS: { title: string; description: string; commands?: string[] }[] = [
     description:
       'If the button above shows "Generate token" instead, the agent isn\'t reachable on localhost. Copy the generated token and set it in the terminal you run the agent from:',
     commands: [
-      'set GITEASE_AGENT_TOKEN=<token>',
-      'export GITEASE_AGENT_TOKEN=<token>',
+      'set AGENT_JWT_TOKEN=<token>',
+      'export AGENT_JWT_TOKEN=<token>',
       'set GITEASE_BACKEND_URL=ws://localhost:5000 (optional, this is the default)',
     ],
   },

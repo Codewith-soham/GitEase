@@ -7,7 +7,7 @@ import { createConnection, disconnectCurrent } from './websocketHandler.js'
 import { startPairingServer } from './pairingServer.js'
 import { loadToken, saveToken } from './configStore.js'
 
-const initialToken = process.env.GITEASE_AGENT_TOKEN || loadToken()
+const initialToken = process.env.AGENT_JWT_TOKEN || loadToken()
 
 if (initialToken) {
     createConnection(initialToken)
@@ -22,7 +22,7 @@ startPairingServer({
         createConnection(token)
     },
     onReconnect: () => {
-        const token = process.env.GITEASE_AGENT_TOKEN || loadToken()
+        const token = process.env.AGENT_JWT_TOKEN || loadToken()
         if (!token) {
             console.log('Reconnect requested but no saved token found.')
             return false

@@ -48,7 +48,11 @@ export function AgentStatusCard() {
   async function handleDisconnect() {
     setDisconnecting(true)
     try {
-      await disconnectLocalAgent()
+      const ok = await disconnectLocalAgent()
+      if (!ok) {
+        toast.error('Could not reach the local agent to disconnect it')
+        return
+      }
       toast.success('Agent disconnected')
       queryClient.invalidateQueries({ queryKey: ['agent', 'status'] })
       setTimeout(() => queryClient.invalidateQueries({ queryKey: ['agent', 'status'] }), 2000)
@@ -82,7 +86,7 @@ export function AgentStatusCard() {
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          {agentReachable && connected && (
+          {connected && (
             <Button variant="outline" size="sm" onClick={handleDisconnect} disabled={disconnecting}>
               {disconnecting ? <Loader2 className="animate-spin" /> : <Unplug />}
               Disconnect

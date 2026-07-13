@@ -5,6 +5,11 @@ import { deleteSession, findSessionByToken } from './auth.repository.js'
 import { ApiError } from '../../utils/ApiError.js'
 import { Session } from '../../models/session.model.js'
 
+const isProd = process.env.NODE_ENV === 'production'
+// sameSite:'none' requires secure:true, which browsers only honor over https,
+// so cross-origin cookies (Vercel <-> Render) only work when NODE_ENV=production.
+const cookieOptions = { httpOnly: true, secure: isProd, sameSite: isProd ? 'none' : 'lax' }
+
 const redirectToGithub = asyncHandler(async (req, res) => {
     const clientId = process.env.CLIENT_ID
 
@@ -26,16 +31,12 @@ const handleGithubCallBack = asyncHandler(async (req, res) => {
     )
 
     res.cookie('accessToken', accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        ...cookieOptions,
         maxAge: 15 * 60 * 1000,
     })
 
     res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        ...cookieOptions,
         maxAge: 7 * 24 * 60 * 60 * 1000,
     })
 
@@ -63,8 +64,8 @@ const logOut = asyncHandler(async(req,res) => {
 
     await deleteSession(session._id)
 
-    res.clearCookie('accessToken')
-    res.clearCookie('refreshToken')
+    res.clearCookie('accessToken', cookieOptions)
+    res.clearCookie('refreshToken', cookieOptions)
 
     return res.status(200).json(new ApiResponse(200, null, "User logged out successfully"))
 
@@ -73,8 +74,8 @@ const logOut = asyncHandler(async(req,res) => {
 const logOutAll = asyncHandler(async(req,res) => {
     await logOutAllSessions(req.user._id)
 
-    res.clearCookie('accessToken')
-    res.clearCookie('refreshToken')
+    res.clearCookie('accessToken', cookieOptions)
+    res.clearCookie('refreshToken', cookieOptions)
 
     return res.status(200).json(new ApiResponse(200, null, "All user sessions deleted"))
 })
@@ -83,9 +84,7 @@ const newAccessToken = asyncHandler(async(req,res) => {
     const accessToken = await refreshAccessToken(req.cookies.refreshToken)
 
     res.cookie('accessToken', accessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    ...cookieOptions,
     maxAge: 15 * 60 * 1000,
     })
 

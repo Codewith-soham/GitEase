@@ -116,7 +116,7 @@ All responses share the shape `{ exitCode, stdout, stderr }`, wrapped in the sta
 
 ### 3.5 Local Agent (`backend/agent/`) — standalone process, separate `package.json`
 
-Runs on the developer's own machine (`node agent.js`, requires `GITEASE_AGENT_TOKEN`). Connects to the backend over WebSocket and executes git commands locally. Refactored this session from one monolithic file into a pipeline of four modules:
+Runs on the developer's own machine (`node agent.js`, requires `AGENT_JWT_TOKEN`). Connects to the backend over WebSocket and executes git commands locally. Refactored this session from one monolithic file into a pipeline of four modules:
 
 - **`commandTranslator.js`** — pure function `translateCommand({command, files, branch, remote, commitMessage, force})` → `{gitCommand, args}`. Maps the 9 semantic commands to the exact `git` CLI invocation (e.g. `createBranch` → `checkout -b <branch>`, `deleteBranch` → `branch -d|-D <branch>`).
 - **`commonValidator.js`** — `validateCommand` whitelists commands (`ALLOWED_COMMANDS`), checks arg-count bounds, rejects unsafe characters (`UNSAFE_PATTERN`), validates branch names (`BRANCH_NAME_PATTERN` / `isSafeBranchName` — no whitespace, no `~^:?*[\``, no leading `-`, no leading/trailing `/`/`.`, no `..`, max 250 chars), validates file paths stay inside `cwd` (`isSafeFilePath`, prevents path escape via `..` or absolute paths), and validates remote names (`/^[a-zA-Z0-9_.-]+$/`).
@@ -185,7 +185,7 @@ All routes except `github`, `github/callback`, and `refresh-token` require `veri
 `PORT`, `MONGO_URL`, `CLIENT_ID`, `CLIENT_SECRET`, `JWT_ACCESS_TOKEN`, `JWT_ACCESS_TOKEN_EXPIRY`, `JWT_REFRESH_TOKEN`, `JWT_REFRESH_TOKEN_EXPIRY`, `AGENT_JWT_SECRET`, `AGENT_JWT_SECRET_EXPIRY`
 
 **Local Agent** (`backend/agent`, process env):
-`GITEASE_BACKEND_URL` (defaults to `ws://localhost:5000`), `GITEASE_AGENT_TOKEN` (required — agent exits if unset)
+`GITEASE_BACKEND_URL` (defaults to `ws://localhost:5000`), `AGENT_JWT_TOKEN` (required — agent exits if unset)
 
 ---
 

@@ -21,7 +21,7 @@ GitEase is a visual Git workspace on top of GitHub for beginners and small teams
 - Design language: dark-only OKLCH theme; reuse `globals.css` utilities `.glass`, `.text-gradient`, `.glow-purple`, `.glow-cyan` and tokens `--purple`, `--cyan`; `cn` from `src/lib/utils.ts`
 - Data layer: **TanStack Query** for all server state, **Zustand** for UI-only state
 - Env: `NEXT_PUBLIC_API_URL=http://localhost:5000` (convention already used in `auth-card.tsx`)
-- Backend runs `npm run dev` in `backend/`; agent runs `node agent.js` in `backend/agent/` with env `GITEASE_AGENT_TOKEN` (+ optional `GITEASE_BACKEND_URL=ws://localhost:5000`)
+- Backend runs `npm run dev` in `backend/`; agent runs `node agent.js` in `backend/agent/` with env `AGENT_JWT_TOKEN` (+ optional `GITEASE_BACKEND_URL=ws://localhost:5000`)
 
 ### Verified backend facts (build against these, not the docs in backend/docs)
 - **Success envelope:** `{ statusCode, data, message, success }` → always unwrap `data`
@@ -189,7 +189,7 @@ GitEase is a visual Git workspace on top of GitHub for beginners and small teams
 
 **Files** (all in `src/features/local-agent/components/`, composed by `src/app/(dashboard)/agent/page.tsx`):
 - `agent-status-card.tsx` — big status dot, last-checked time, manual refresh button
-- `agent-setup-steps.tsx` — numbered steps with copyable command blocks: 1) generate a token below, 2) `set GITEASE_AGENT_TOKEN=<token>` (Windows) / `export GITEASE_AGENT_TOKEN=<token>` (+ optional `GITEASE_BACKEND_URL=ws://localhost:5000`), 3) `node agent.js` from the `backend/agent` folder, 4) watch the indicator turn green
+- `agent-setup-steps.tsx` — numbered steps with copyable command blocks: 1) generate a token below, 2) `set AGENT_JWT_TOKEN=<token>` (Windows) / `export AGENT_JWT_TOKEN=<token>` (+ optional `GITEASE_BACKEND_URL=ws://localhost:5000`), 3) `node agent.js` from the `backend/agent` folder, 4) watch the indicator turn green
 - `agent-token-section.tsx` — Generate → Dialog with read-only mono Input + copy button (`navigator.clipboard`) + amber warning "This token will not be shown again"; Revoke → AlertDialog noting the running agent will disconnect
 - Connected folders list — from `['local-repos']`, repo name resolved via `['repos']`, path in mono, disconnect button per row
 

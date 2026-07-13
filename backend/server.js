@@ -1,8 +1,5 @@
-import dotenv from "dotenv";
-dotenv.config({
-  path: "./.env",
-});
-
+import "dotenv/config";
+import "./src/config/env.config.js";
 import { app } from "./src/app.js";
 import connectDB from "./src/config/db.config.js";
 import { setupWebSocket } from "./src/config/webScoket.config.js";

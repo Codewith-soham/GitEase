@@ -18,3 +18,11 @@ export function saveToken(token) {
     fs.mkdirSync(CONFIG_DIR, { recursive: true })
     fs.writeFileSync(CONFIG_FILE, JSON.stringify({ token }), { mode: 0o600 })
 }
+
+export function clearToken() {
+    try {
+        fs.unlinkSync(CONFIG_FILE)
+    } catch {
+        // already gone — nothing to do
+    }
+}

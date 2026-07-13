@@ -2,6 +2,12 @@ import WebSocket from 'ws'
 import { translateCommand } from './commandTranslator.js'
 import { validateCommand } from './commonValidator.js'
 import { runCommand } from './processManager.js'
+import { clearToken } from './configStore.js'
+
+// Close code the backend uses for both a failed handshake and a
+// backend-initiated revoke (see webScoket.config.js / auth.service.js) —
+// either way, this exact token will never succeed again.
+const TOKEN_REJECTED_CODE = 4001
 
 const backendUrl = process.env.GITEASE_BACKEND_URL || 'ws://localhost:5000'
 
@@ -84,8 +90,17 @@ export function createConnection(token) {
         })
 
         // Fires when connection is closed
-        ws.on('close', () => {
+        ws.on('close', (code) => {
             if (myGeneration !== generation) return
+
+            if (code === TOKEN_REJECTED_CODE) {
+                console.log(
+                    'Agent token was rejected or revoked — clearing saved token. Open the GitEase dashboard and click "Connect Agent" to re-pair.',
+                )
+                clearToken()
+                return
+            }
+
             console.log('Disconnected from backend')
             setTimeout(connect, backoff)
             backoff = Math.min(backoff * 2, MAX_BACKOFF_MS)

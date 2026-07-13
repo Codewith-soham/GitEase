@@ -16,10 +16,6 @@ const rethrowGithubError = (err) => {
 }
 
 const exchangeCodeForToken = async (code) => {
-    console.log('CLIENT_ID:', process.env.CLIENT_ID)
-    console.log('SECRET:', process.env.CLIENT_SECRET ? 'exists' : 'missing')
-    console.log('CODE:', code)
-
     const response = await axios.post(
         "https://github.com/login/oauth/access_token",
         {
@@ -34,7 +30,6 @@ const exchangeCodeForToken = async (code) => {
         }
     )
 
-    console.log('GITHUB RESPONSE:', response.data)
     return response.data.access_token
 }
 
