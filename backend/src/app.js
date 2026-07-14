@@ -12,6 +12,11 @@ import gitRouter from './modules/git/git.routes.js'
 
 const app = express();
 
+// trust the platform's reverse proxy (Render/Railway/etc.) so req.ip reflects
+// the real client IP instead of the proxy's IP — required for express-rate-limit
+// to key limits per-user instead of lumping all traffic into one bucket
+app.set("trust proxy", 1);
+
 app.use(helmet());
 
 //cors config -> allows frontend to run on different port/domain
