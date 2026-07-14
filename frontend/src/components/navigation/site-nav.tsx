@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { GitBranch } from 'lucide-react'
 import type Lenis from 'lenis'
 import { useLenis } from '@/components/animations/smooth-scroll-provider'
@@ -51,6 +52,9 @@ export function SiteNav() {
           <a href="#vision" className="transition-colors hover:text-foreground">
             Vision
           </a>
+          <Link href="/docs" className="transition-colors hover:text-foreground">
+            Docs
+          </Link>
         </div>
 
         <div className="flex items-center gap-2">
