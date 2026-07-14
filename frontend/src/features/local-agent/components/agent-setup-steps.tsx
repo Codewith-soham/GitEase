@@ -7,9 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 const STEPS: { title: string; description: string; commands?: string[] }[] = [
   {
-    title: 'Start the agent',
-    description: 'From the backend/agent folder, run it once — it keeps running in the background:',
-    commands: ['node agent.js'],
+    title: 'Unzip and start the agent',
+    description:
+      'Unzip the download anywhere on your computer, then double-click start.bat (Windows) or run ./start.sh (Mac/Linux). Leave the window open — it keeps running in the background.',
   },
   {
     title: 'Click "Connect Agent"',

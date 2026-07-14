@@ -1,3 +1,4 @@
+import { AgentDownloadCard } from '@/features/local-agent/components/agent-download-card'
 import { AgentSetupSteps } from '@/features/local-agent/components/agent-setup-steps'
 import { AgentStatusCard } from '@/features/local-agent/components/agent-status-card'
 import { AgentTokenSection } from '@/features/local-agent/components/agent-token-section'
@@ -15,6 +16,7 @@ export default function AgentPage() {
       </div>
 
       <AgentStatusCard />
+      <AgentDownloadCard />
       <AgentTokenSection />
       <AgentSetupSteps />
       <ConnectedFoldersList />

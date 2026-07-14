@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ExternalLink, LogOut, Menu, Settings as SettingsIcon } from 'lucide-react'
+import { Download, ExternalLink, LogOut, Menu, Settings as SettingsIcon } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -14,6 +14,7 @@ import {
 import { AgentStatusIndicator } from '@/features/local-agent/components/agent-status-indicator'
 import { useMe } from '@/features/auth/hooks/use-me'
 import { useLogout } from '@/features/auth/hooks/use-logout'
+import { AGENT_DOWNLOAD_URL } from '@/lib/agent-download'
 
 export function AppTopbar({
   title,
@@ -51,6 +52,10 @@ export function AppTopbar({
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          <DropdownMenuItem render={<a href={AGENT_DOWNLOAD_URL} />}>
+            <Download />
+            Download agent
+          </DropdownMenuItem>
           <DropdownMenuItem render={<Link href="/settings" />}>
             <SettingsIcon />
             Settings
