@@ -49,7 +49,7 @@ export function WorkspaceDashboard({ activeStep = -1 }: Props) {
           {/* repo overview */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="grid size-10 place-items-center rounded-lg border border-white/10 bg-gradient-to-br from-purple/25 to-blue/20 text-foreground">
+              <div className="grid size-10 place-items-center rounded-lg border border-white/10 bg-linear-to-br from-purple/25 to-blue/20 text-foreground">
                 <Folder className="size-5" />
               </div>
               <div>
@@ -112,7 +112,7 @@ export function WorkspaceDashboard({ activeStep = -1 }: Props) {
           </div>
 
           {/* activity feed */}
-          <div className="rounded-lg border border-white/10 bg-white/[0.02]">
+          <div className="rounded-lg border border-white/10 bg-white/2">
             <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2 text-xs font-medium text-muted-foreground">
               <Activity className="size-3.5" /> Activity
             </div>
