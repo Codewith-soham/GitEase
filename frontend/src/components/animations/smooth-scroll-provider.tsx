@@ -25,6 +25,8 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)')
+    let cleanupTick: (() => void) | undefined
+    let idleHandle: number | undefined
 
     const setup = (reduced: boolean) => {
       setPrefersReducedMotion(reduced)
@@ -49,7 +51,17 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    let cleanupTick = setup(media.matches)
+    const schedule = (fn: () => void) => {
+      if ('requestIdleCallback' in window) {
+        idleHandle = window.requestIdleCallback(fn, { timeout: 500 })
+      } else {
+        idleHandle = window.setTimeout(fn, 200) as unknown as number
+      }
+    }
+
+    schedule(() => {
+      cleanupTick = setup(media.matches)
+    })
 
     const onChange = (e: MediaQueryListEvent) => {
       cleanupTick?.()
@@ -59,6 +71,10 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
 
     return () => {
       media.removeEventListener('change', onChange)
+      if (idleHandle !== undefined) {
+        if ('cancelIdleCallback' in window) window.cancelIdleCallback(idleHandle)
+        else clearTimeout(idleHandle)
+      }
       cleanupTick?.()
       lenisRef.current?.destroy()
       lenisRef.current = null
