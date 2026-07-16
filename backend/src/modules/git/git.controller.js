@@ -7,7 +7,8 @@ import {
     fetchRemote as fetchRemoteService,
     createBranch as createBranchService,
     switchBranch as switchBranchService,
-    deleteBranch as deleteBranchService
+    deleteBranch as deleteBranchService,
+    listBranches as listBranchesService
 } from "./git.service.js";
 import {
     connectLocalRepo as connectLocalRepoService,
@@ -91,6 +92,18 @@ const deleteBranch = asyncHandler(async(req, res) => {
     return res.status(200).json(new ApiResponse(200, result, "Delete branch completed"))
 })
 
+const listBranches = asyncHandler(async(req, res) => {
+    const { repositoryId } = req.query
+
+    if (!repositoryId) {
+        throw new ApiError(400, "repositoryId is required")
+    }
+
+    const result = await listBranchesService(req.user._id, { repositoryId })
+
+    return res.status(200).json(new ApiResponse(200, result, "Branches fetched"))
+})
+
 const connectLocalRepo = asyncHandler(async(req, res) => {
     const { repositoryId, localPath } = req.body
 
@@ -133,6 +146,7 @@ export {
     createBranch,
     switchBranch,
     deleteBranch,
+    listBranches,
     connectLocalRepo,
     getLocalRepos,
     disconnectLocalRepo,

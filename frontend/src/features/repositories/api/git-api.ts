@@ -1,5 +1,5 @@
 import { apiFetch } from '@/lib/api-client'
-import type { GitCommandResult } from '@/features/repositories/types'
+import type { GitCommandResult, LocalBranch } from '@/features/repositories/types'
 
 export async function gitStatus(repositoryId: string): Promise<GitCommandResult> {
   return apiFetch<GitCommandResult>('/api/git/v1/status', {
@@ -35,10 +35,13 @@ export async function gitPush(
   })
 }
 
-export async function gitPull(repositoryId: string): Promise<GitCommandResult> {
+export async function gitPull(
+  repositoryId: string,
+  params?: { branch?: string; remote?: string },
+): Promise<GitCommandResult> {
   return apiFetch<GitCommandResult>('/api/git/v1/pull', {
     method: 'POST',
-    body: JSON.stringify({ repositoryId }),
+    body: JSON.stringify({ repositoryId, ...params }),
   })
 }
 
@@ -78,4 +81,12 @@ export async function gitDeleteBranch(
     method: 'POST',
     body: JSON.stringify({ repositoryId, branch, force, confirmed: true }),
   })
+}
+
+export async function gitListBranches(
+  repositoryId: string,
+): Promise<{ branches: LocalBranch[] }> {
+  return apiFetch<{ branches: LocalBranch[] }>(
+    `/api/git/v1/branches?repositoryId=${encodeURIComponent(repositoryId)}`,
+  )
 }

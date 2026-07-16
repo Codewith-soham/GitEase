@@ -38,6 +38,26 @@ const fetchRemote = async(userId, { repositoryId, remote }) => {
     return await runAgentCommand(userId, { command: 'fetch', remote, cwd })
 }
 
+const listBranches = async(userId, { repositoryId }) => {
+    const cwd = await resolveLocalRepoPath(userId, repositoryId)
+
+    const result = await runAgentCommand(userId, { command: 'listBranches', cwd })
+
+    // `git branch` prints one branch per line, current branch prefixed with "* "
+    // and a detached HEAD as "* (HEAD detached at <ref>)" — skip that line.
+    const branches = result.stdout
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => ({
+            current: line.startsWith('*'),
+            name: line.replace(/^\*\s*/, '').trim()
+        }))
+        .filter((b) => b.name && !b.name.startsWith('('))
+
+    return { branches }
+}
+
 const createBranch = async(userId, { repositoryId, branch }) => {
     const cwd = await resolveLocalRepoPath(userId, repositoryId)
 
@@ -69,5 +89,6 @@ export {
     fetchRemote,
     createBranch,
     switchBranch,
-    deleteBranch
+    deleteBranch,
+    listBranches
 }

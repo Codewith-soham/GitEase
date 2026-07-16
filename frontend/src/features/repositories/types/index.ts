@@ -15,6 +15,11 @@ export interface Branch {
   sha: string
 }
 
+export interface LocalBranch {
+  name: string
+  current: boolean
+}
+
 export interface GitCommandResult {
   exitCode: number
   stdout: string

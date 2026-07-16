@@ -14,7 +14,8 @@ const ALLOWED_COMMANDS = {
   fetch: { minArgs: 1, maxArgs: 1 },
   createBranch: { minArgs: 1, maxArgs: 2 }, // checkout -b <branch>
   switchBranch: { minArgs: 1, maxArgs: 1 }, // checkout <branch>
-  deleteBranch: { minArgs: 2, maxArgs: 2 } // branch -d|-D <branch>
+  deleteBranch: { minArgs: 2, maxArgs: 2 }, // branch -d|-D <branch>
+  listBranches: { minArgs: 0, maxArgs: 0 } // branch
 };
 
 const UNSAFE_PATTERN = /[;&|`$()<>\\]|\.\./;

@@ -10,6 +10,7 @@ import {
     createBranch,
     switchBranch,
     deleteBranch,
+    listBranches,
     connectLocalRepo,
     getLocalRepos,
     disconnectLocalRepo,
@@ -27,6 +28,7 @@ router.route('/fetch').post(verifyJwt, fetchRemote)
 router.route('/create-branch').post(verifyJwt, createBranch)
 router.route('/switch-branch').post(verifyJwt, switchBranch)
 router.route('/delete-branch').post(verifyJwt, deleteBranch)
+router.route('/branches').get(verifyJwt, listBranches)
 router.route('/local-repo').post(verifyJwt, connectLocalRepo).get(verifyJwt, getLocalRepos)
 router.route('/local-repo/:repositoryId').delete(verifyJwt, disconnectLocalRepo)
 router.route('/agent-status').get(verifyJwt, getAgentStatus)

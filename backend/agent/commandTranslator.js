@@ -22,6 +22,10 @@ export function translateCommand({ command, files, branch, remote, commitMessage
     case 'fetch':
       args = [effectiveRemote];
       break;
+    case 'listBranches':
+      gitCommand = 'branch';
+      args = [];
+      break;
     case 'createBranch':
       gitCommand = 'checkout';
       args = ['-b', branch];
