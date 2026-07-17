@@ -1,5 +1,8 @@
-export const API_URL =
-  (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000')
+// Requests go through next.config.mjs's /api/:path* rewrite, which proxies
+// to BACKEND_URL server-side. This keeps everything same-origin from the
+// browser's perspective, so auth cookies are first-party (readable by
+// middleware, not blocked by third-party cookie restrictions).
+export const API_URL = ''
 
 // ---------------------------------------------------------------------------
 // Error class

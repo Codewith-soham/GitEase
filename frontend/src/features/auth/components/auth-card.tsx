@@ -3,9 +3,8 @@
 import { ArrowRight, ShieldCheck, KeyRound, GitBranch, Laptop } from 'lucide-react'
 import { motion } from 'motion/react'
 import { GithubIcon } from '@/app/(public)/_components/github-icon'
-import { API_URL } from '@/lib/api-client'
 
-const AUTH_URL = API_URL + '/api/auth/v1/github'
+const AUTH_URL = '/api/auth/v1/github'
 
 const trustPoints = [
   { icon: ShieldCheck, label: 'Secure GitHub OAuth' },

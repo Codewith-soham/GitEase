@@ -6,9 +6,10 @@ import { ApiError } from '../../utils/ApiError.js'
 import { Session } from '../../models/session.model.js'
 
 const isProd = process.env.NODE_ENV === 'production'
-// sameSite:'none' requires secure:true, which browsers only honor over https,
-// so cross-origin cookies (Vercel <-> Render) only work when NODE_ENV=production.
-const cookieOptions = { httpOnly: true, secure: isProd, sameSite: isProd ? 'none' : 'lax' }
+// The frontend proxies /api/* through its own origin (see next.config.mjs),
+// so from the browser's point of view these cookies are first-party —
+// sameSite:'lax' works in both dev and prod, no need for 'none'.
+const cookieOptions = { httpOnly: true, secure: isProd, sameSite: 'lax' }
 
 const redirectToGithub = asyncHandler(async (req, res) => {
     const clientId = process.env.CLIENT_ID
