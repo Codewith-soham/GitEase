@@ -1,12 +1,12 @@
 import path from "path";
 import { createGithubBranch, createGithubRepo, deleteGithubrepo, getGithubBranchSha, getGithubRepos, listGithubBranch, deleteGithubBranch } from "../../services/github.services.js";
-import { findUserbyId } from "../auth/auth.repository.js";
+import { getDecryptedGithubToken } from "../auth/auth.repository.js";
 import { findLocalRepo, upsertLocalRepo, listLocalRepos, deleteLocalRepo } from "./repository.repository.js";
 import { ApiError } from "../../utils/ApiError.js";
 
 const getRepos = async(userId) => {
-    const user = await findUserbyId(userId)
-    const repos = await getGithubRepos(user.githubAccessToken)
+    const accessToken = await getDecryptedGithubToken(userId)
+    const repos = await getGithubRepos(accessToken)
 
     return repos.map(repo => ({
         id: repo.id,
@@ -21,7 +21,8 @@ const getRepos = async(userId) => {
     }))
 }
 const createRepository = async(user, body) => {
-    const newRepo = await createGithubRepo(user.githubAccessToken, body)
+    const accessToken = await getDecryptedGithubToken(user._id)
+    const newRepo = await createGithubRepo(accessToken, body)
 
     return {
         id: newRepo.id,
@@ -36,9 +37,10 @@ const createRepository = async(user, body) => {
 const createBranch = async(user, repoName, body) => {
     const { branchName, baseBranch} = body
 
-    const sha = await getGithubBranchSha(user.githubAccessToken, user.username, repoName, baseBranch)
+    const accessToken = await getDecryptedGithubToken(user._id)
+    const sha = await getGithubBranchSha(accessToken, user.username, repoName, baseBranch)
 
-    const newBranch = await createGithubBranch(user.githubAccessToken, user.username, repoName, branchName, sha)
+    const newBranch = await createGithubBranch(accessToken, user.username, repoName, branchName, sha)
 
     return {
         name: newBranch.ref.replace("refs/heads/", ""),
@@ -47,8 +49,8 @@ const createBranch = async(user, repoName, body) => {
 }
 
 const listBranch = async(user, repoName) => {
-
-    const branches = await listGithubBranch(user.githubAccessToken, user.username, repoName)
+    const accessToken = await getDecryptedGithubToken(user._id)
+    const branches = await listGithubBranch(accessToken, user.username, repoName)
 
     return branches.map(branch => ({
         name: branch.name,
@@ -57,14 +59,15 @@ const listBranch = async(user, repoName) => {
 }
 
 const deleteRepo = async(user, repoName) => {
-
-    const deletedRepo = await deleteGithubrepo(user.githubAccessToken, user.username, repoName)
+    const accessToken = await getDecryptedGithubToken(user._id)
+    const deletedRepo = await deleteGithubrepo(accessToken, user.username, repoName)
 
     return deletedRepo
 }
 
 const deleteBranch = async(user, repoName, branchName) => {
-    await deleteGithubBranch(user.githubAccessToken, user.username, repoName, branchName)
+    const accessToken = await getDecryptedGithubToken(user._id)
+    await deleteGithubBranch(accessToken, user.username, repoName, branchName)
     return { deletedBranch: branchName }
 }
 

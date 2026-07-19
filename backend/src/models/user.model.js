@@ -28,7 +28,8 @@ const userSchema = new mongoose.Schema({
 
     githubAccessToken:{
         type: String,
-        required: true
+        required: true,
+        select: false
     },
 },
 {

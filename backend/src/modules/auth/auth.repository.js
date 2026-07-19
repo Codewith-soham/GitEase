@@ -2,6 +2,8 @@
 
 import { User } from '../../models/user.model.js'
 import { Session } from '../../models/session.model.js'
+import { ApiError } from '../../utils/ApiError.js'
+import { encrypt, decrypt, isEncrypted } from '../../utils/encryption.js'
 
 const findUserByGithubId = async(githubId) => {
     const user = await User.findOne({
@@ -12,7 +14,12 @@ const findUserByGithubId = async(githubId) => {
 }
 
 const createUser = async(userData) => {
-    const user = await User.create(userData)
+    const payload = { ...userData }
+    if (payload.githubAccessToken) {
+        payload.githubAccessToken = encrypt(payload.githubAccessToken)
+    }
+
+    const user = await User.create(payload)
 
     return user
 }
@@ -83,10 +90,30 @@ const updateUserGithubtoken = async(userId, githubtoken) => {
     return await User.findByIdAndUpdate(
         userId,
         {
-            githubAccessToken: githubtoken
+            githubAccessToken: encrypt(githubtoken)
         },
         {new: true}
     )
+}
+
+const getDecryptedGithubToken = async(userId) => {
+    const user = await User.findById(userId).select('+githubAccessToken')
+
+    if (!user) {
+        throw new ApiError(404, 'User not found')
+    }
+
+    const stored = user.githubAccessToken
+    const plaintext = decrypt(stored)
+
+    if (!isEncrypted(stored)) {
+        // legacy plaintext row from before encryption-at-rest was added —
+        // re-encrypt now that it's been read, so the fleet migrates itself
+        // as normal usage happens instead of needing a batch migration.
+        await updateUserGithubtoken(userId, plaintext)
+    }
+
+    return plaintext
 }
 
 export {
@@ -103,5 +130,6 @@ export {
     deleteAgentSessions,
     findSessionbyUserId,
     findUserbyId,
-    updateUserGithubtoken
+    updateUserGithubtoken,
+    getDecryptedGithubToken
 }
