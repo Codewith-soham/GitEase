@@ -4,7 +4,7 @@ import { Session } from "../models/session.model.js"
 import { findAgentSessionByToken } from "../modules/auth/auth.repository.js"
 import { handleAgentMessage } from "../services/agent.services.js"
 
-const agentConnections = new Map()
+export const agentConnections = new Map()
 
 export const getAgentConnection = (userId) => {
     return agentConnections.get(String(userId))

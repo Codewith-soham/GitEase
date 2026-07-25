@@ -8,7 +8,7 @@
     "node": "22.x"
   },
   "scripts": {
-    "test": "node --test src/tests/auth.test.js",
+    "test": "node -r dotenv/config --test",
     "dev": "nodemon server.js",
     "start": "node server.js",
     "format": "prettier --write .",

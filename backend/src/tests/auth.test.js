@@ -29,7 +29,7 @@ test('redirectToGithub redirects to GitHub OAuth authorize endpoint', async () =
 
   assert.equal(
     redirects[0],
-    'https://github.com/login/oauth/authorize?client_id=test-client-id&scope=user:email',
+    'https://github.com/login/oauth/authorize?client_id=test-client-id&scope=user:email,repo,delete_repo',
   )
 
   process.env.CLIENT_ID = previousClientId
@@ -143,9 +143,7 @@ test('verifyJwt authenticates user from access token in cookie', async () => {
   let nextCalled = false
 
   const verifyMock = mock.method(jwt, 'verify', () => ({ userId: 'cookie-user-id' }))
-  const findByIdMock = mock.method(User, 'findById', () => ({
-    select: async () => ({ _id: 'cookie-user-id', username: 'cookie-user' }),
-  }))
+  const findByIdMock = mock.method(User, 'findById', async () => ({ _id: 'cookie-user-id', username: 'cookie-user' }))
 
   await new Promise((resolve) => {
     verifyJwt(req, res, () => {
@@ -187,9 +185,7 @@ test('verifyJwt authenticates user from bearer token attached from response data
   let nextCalled = false
 
   const verifyMock = mock.method(jwt, 'verify', () => ({ userId: 'bearer-user-id' }))
-  const findByIdMock = mock.method(User, 'findById', () => ({
-    select: async () => ({ _id: 'bearer-user-id', username: 'bearer-user' }),
-  }))
+  const findByIdMock = mock.method(User, 'findById', async () => ({ _id: 'bearer-user-id', username: 'bearer-user' }))
 
   await new Promise((resolve) => {
     verifyJwt(req, res, () => {
@@ -245,9 +241,7 @@ test('verifyJwt fails with ApiError when user is not found', async () => {
   const errors = []
 
   const verifyMock = mock.method(jwt, 'verify', () => ({ userId: 'missing-user-id' }))
-  const findByIdMock = mock.method(User, 'findById', () => ({
-    select: async () => null,
-  }))
+  const findByIdMock = mock.method(User, 'findById', async () => null)
 
   await new Promise((resolve) => {
     verifyJwt(req, res, (err) => {
@@ -275,7 +269,7 @@ test('GET /api/auth/v1/github returns redirect to GitHub OAuth URL', async () =>
 
   assert.equal(
     response.headers.location,
-    'https://github.com/login/oauth/authorize?client_id=integration-client-id&scope=user:email',
+    'https://github.com/login/oauth/authorize?client_id=integration-client-id&scope=user:email,repo,delete_repo',
   )
 
   process.env.CLIENT_ID = previousClientId
@@ -293,9 +287,7 @@ test('GET /api/auth/v1/me accepts bearer token from response payload style data'
   }
 
   const verifyMock = mock.method(jwt, 'verify', () => ({ userId: 'route-bearer-user-id' }))
-  const findByIdMock = mock.method(User, 'findById', () => ({
-    select: async () => ({ _id: 'route-bearer-user-id', username: 'route-bearer-user' }),
-  }))
+  const findByIdMock = mock.method(User, 'findById', async () => ({ _id: 'route-bearer-user-id', username: 'route-bearer-user' }))
 
   const response = await request(app)
     .get('/api/auth/v1/me')
@@ -321,9 +313,7 @@ test('GET /api/auth/v1/me accepts cookie access token', async () => {
   const accessToken = generateAccessToken('route-cookie-user-id')
 
   const verifyMock = mock.method(jwt, 'verify', () => ({ userId: 'route-cookie-user-id' }))
-  const findByIdMock = mock.method(User, 'findById', () => ({
-    select: async () => ({ _id: 'route-cookie-user-id', username: 'route-cookie-user' }),
-  }))
+  const findByIdMock = mock.method(User, 'findById', async () => ({ _id: 'route-cookie-user-id', username: 'route-cookie-user' }))
 
   const response = await request(app)
     .get('/api/auth/v1/me')
@@ -358,9 +348,7 @@ test('POST /api/auth/v1/logout logs out current session and clears cookies', asy
   const expectedHashed = Session.hashToken(refreshToken)
 
   const verifyMock = mock.method(jwt, 'verify', () => ({ userId: 'logout-user-id' }))
-  const findByIdMock = mock.method(User, 'findById', () => ({
-    select: async () => ({ _id: 'logout-user-id', username: 'logout-user' }),
-  }))
+  const findByIdMock = mock.method(User, 'findById', async () => ({ _id: 'logout-user-id', username: 'logout-user' }))
   const findSessionByTokenMock = mock.method(Session, 'findOne', async ({ refreshToken: token }) => {
     assert.equal(token, expectedHashed)
     return { _id: 'session-logout-id' }
@@ -401,9 +389,7 @@ test('POST /api/auth/v1/logoutall deletes all sessions and clears cookies', asyn
   const accessToken = generateAccessToken('logoutall-user-id')
 
   const verifyMock = mock.method(jwt, 'verify', () => ({ userId: 'logoutall-user-id' }))
-  const findByIdMock = mock.method(User, 'findById', () => ({
-    select: async () => ({ _id: 'logoutall-user-id', username: 'logoutall-user' }),
-  }))
+  const findByIdMock = mock.method(User, 'findById', async () => ({ _id: 'logoutall-user-id', username: 'logoutall-user' }))
   const logoutAllSessionsMock = mock.method(Session, 'deleteMany', async ({ userId }) => {
     assert.equal(userId, 'logoutall-user-id')
     return { deletedCount: 2 }
@@ -486,9 +472,7 @@ test('GET /api/auth/v1/sessions returns sessions for authenticated user', async 
   ]
 
   const verifyMock = mock.method(jwt, 'verify', () => ({ userId: 'sessions-user-id' }))
-  const findByIdMock = mock.method(User, 'findById', () => ({
-    select: async () => ({ _id: 'sessions-user-id', username: 'sessions-user' }),
-  }))
+  const findByIdMock = mock.method(User, 'findById', async () => ({ _id: 'sessions-user-id', username: 'sessions-user' }))
   const findSessionsMock = mock.method(Session, 'find', async ({ userId }) => {
     assert.equal(userId, 'sessions-user-id')
     return sessions
