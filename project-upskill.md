@@ -94,7 +94,7 @@ File paths are relative to the repo root unless noted.
     delete is a no-op and the map leaks a stale entry.
     → Make the key coercion consistent between set and delete.
 
-12. **No cleanup of in-flight agent requests on WebSocket disconnect.**
+12. **No cleanup of in-flight agent requests on WebSocket disconnect.**0
     `backend/src/services/agent.services.js`'s `pendingRequests` map isn't
     cleared when the agent's socket closes — callers wait out the full
     timeout (default 60s) instead of failing fast.

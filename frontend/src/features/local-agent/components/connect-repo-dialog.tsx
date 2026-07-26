@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { FolderInput, Loader2 } from 'lucide-react'
+import { FolderInput, FolderSearch, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { browseFolderLocalAgent } from '@/features/local-agent/api/local-agent-loopback'
 import { useConnectLocalRepo } from '@/features/local-agent/hooks/use-local-repos'
 
 function validateLocalPath(p: string): string | null {
@@ -31,7 +32,25 @@ export function ConnectRepoDialog({ repositoryId }: { repositoryId: string }) {
   const [open, setOpen] = useState(false)
   const [localPath, setLocalPath] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [isBrowsing, setIsBrowsing] = useState(false)
   const connectMutation = useConnectLocalRepo()
+
+  const handleBrowse = async () => {
+    setIsBrowsing(true)
+    try {
+      const selected = await browseFolderLocalAgent()
+      if (selected) {
+        setLocalPath(selected)
+        setError(null)
+      } else {
+        toast.error(
+          'Could not open the folder picker. Make sure the local agent is running.',
+        )
+      }
+    } finally {
+      setIsBrowsing(false)
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -73,22 +92,31 @@ export function ConnectRepoDialog({ repositoryId }: { repositoryId: string }) {
           </DialogHeader>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="local-path">Absolute path</Label>
-            <Input
-              id="local-path"
-              value={localPath}
-              onChange={(e) => {
-                setLocalPath(e.target.value)
-                setError(null)
-              }}
-              placeholder="C:\Users\you\projects\my-repo"
-              autoFocus
-            />
+            <Label htmlFor="local-path">Folder</Label>
+            <div className="flex gap-2">
+              <Input
+                id="local-path"
+                value={localPath}
+                readOnly
+                placeholder="No folder selected"
+                onClick={handleBrowse}
+                className="cursor-pointer"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleBrowse}
+                disabled={isBrowsing}
+              >
+                {isBrowsing ? <Loader2 className="animate-spin" /> : <FolderSearch />}
+                Browse
+              </Button>
+            </div>
             {error ? (
               <p className="text-xs text-destructive">{error}</p>
             ) : (
               <p className="text-xs text-muted-foreground">
-                Absolute path, e.g. C:\Users\you\projects\my-repo
+                Opens a folder picker on your machine. Requires the local agent to be running.
               </p>
             )}
           </div>

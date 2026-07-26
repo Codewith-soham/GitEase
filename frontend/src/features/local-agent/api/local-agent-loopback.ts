@@ -5,6 +5,9 @@ const PING_TIMEOUT_MS = 1200
 const PAIR_TIMEOUT_MS = 4000
 const RECONNECT_TIMEOUT_MS = 4000
 const DISCONNECT_TIMEOUT_MS = 4000
+// The native folder dialog stays open until the user picks a folder or
+// cancels it, so this has to be long enough to not abort mid-pick.
+const BROWSE_TIMEOUT_MS = 5 * 60 * 1000
 
 function withTimeout(ms: number) {
   const controller = new AbortController()
@@ -38,6 +41,21 @@ export async function pairLocalAgent(token: string): Promise<boolean> {
     return res.ok
   } catch {
     return false
+  } finally {
+    clear()
+  }
+}
+
+/** Asks the local agent to open a native folder-picker dialog and returns the chosen absolute path, or null if cancelled/unavailable. */
+export async function browseFolderLocalAgent(): Promise<string | null> {
+  const { signal, clear } = withTimeout(BROWSE_TIMEOUT_MS)
+  try {
+    const res = await fetch(`${LOOPBACK_URL}/browse-folder`, { method: 'POST', signal })
+    if (!res.ok) return null
+    const data = await res.json()
+    return typeof data.path === 'string' ? data.path : null
+  } catch {
+    return null
   } finally {
     clear()
   }

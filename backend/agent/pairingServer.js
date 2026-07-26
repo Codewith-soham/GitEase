@@ -1,4 +1,5 @@
 import http from 'http'
+import { openFolderPicker } from './folderPicker.js'
 
 const PAIR_PORT = Number(process.env.GITEASE_AGENT_PAIR_PORT) || 8843
 const ALLOWED_ORIGIN = process.env.GITEASE_FRONTEND_URL || 'http://localhost:3000'
@@ -45,6 +46,21 @@ export function startPairingServer({ onToken, onReconnect, onDisconnect }) {
             const disconnected = onDisconnect()
             res.writeHead(200, { 'Content-Type': 'application/json' })
             return res.end(JSON.stringify({ ok: true, disconnected }))
+        }
+
+        // Opens a native folder-picker dialog on the agent's machine so the
+        // browser never has to ask the user to type/paste an absolute path.
+        if (req.method === 'POST' && req.url === '/browse-folder') {
+            openFolderPicker()
+                .then((selectedPath) => {
+                    res.writeHead(200, { 'Content-Type': 'application/json' })
+                    res.end(JSON.stringify({ ok: true, path: selectedPath }))
+                })
+                .catch((err) => {
+                    res.writeHead(500, { 'Content-Type': 'application/json' })
+                    res.end(JSON.stringify({ ok: false, error: err.message }))
+                })
+            return
         }
 
         if (req.method === 'POST' && req.url === '/pair') {

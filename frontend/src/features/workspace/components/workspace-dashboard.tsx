@@ -81,7 +81,7 @@ export function WorkspaceDashboard({ activeStep = -1 }: Props) {
           {/* action buttons */}
           <div className="grid grid-cols-2 gap-2">
             <button
-              className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${
+              className={`flex cursor-pointer items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${
                 commitActive
                   ? 'border-purple/40 bg-purple/20 text-foreground'
                   : 'border-white/10 bg-white/5 text-muted-foreground'
@@ -90,7 +90,7 @@ export function WorkspaceDashboard({ activeStep = -1 }: Props) {
               <GitCommit className="size-4" /> Commit
             </button>
             <button
-              className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${
+              className={`flex cursor-pointer items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${
                 pushActive
                   ? 'border-accent/50 bg-accent/20 text-foreground glow-cyan'
                   : 'border-white/10 bg-white/5 text-muted-foreground'

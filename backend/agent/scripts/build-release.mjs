@@ -24,6 +24,7 @@ const FILES_TO_INCLUDE = [
   'agent.js',
   'websocketHandler.js',
   'pairingServer.js',
+  'folderPicker.js',
   'configStore.js',
   'commandTranslator.js',
   'commonValidator.js',
