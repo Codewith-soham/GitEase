@@ -48,7 +48,14 @@ export const setupWebSocket = (server) => {
         })
 
         ws.on('close', () => {
-            agentConnections.delete(userId)
+            // Only unregister if this socket is still the active one. When an
+            // agent reconnects, the old socket is terminated *after* the new
+            // one is stored, so its late 'close' event must not evict the
+            // new connection (that made the UI report "agent not connected"
+            // while the agent's console still said "Connected").
+            if (agentConnections.get(String(userId)) === ws) {
+                agentConnections.delete(String(userId))
+            }
             console.log("Agent disconnected")
         })
 
